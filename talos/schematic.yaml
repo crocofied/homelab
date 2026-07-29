@@ -1,0 +1,8 @@
+# Schematic ID: 249d9135de54962744e917cfe654117000cba369f9152fbab9d055a00aa3664f
+customization:
+    systemExtensions:
+        officialExtensions:
+            - siderolabs/i915
+            - siderolabs/intel-ucode
+            - siderolabs/iscsi-tools
+            - siderolabs/util-linux-tools

@@ -1,0 +1,8 @@
+talosconfig
+kubeconfig
+*.key
+*.pem
+secrets/
+
+controlplane.yaml
+worker.yaml
