@@ -15,6 +15,13 @@ spec:
           jobEnabled: false
         defaultSettings:
           defaultDataPath: /var/lib/longhorn
+        ingress:
+          enabled: true
+          host: longhorn.damians.cloud
+          tls: true
+          tlsSecret: longhorn-tls
+          annotations:
+            cert-manager.io/cluster-issuer: letsencrypt-cloudflare
   destination:
     server: https://kubernetes.default.svc
     namespace: longhorn-system
