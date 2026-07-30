@@ -8,8 +8,8 @@ controllers:
         env:
           NODE_ENV: production
         ports:
-          http:
-            containerPort: 8080 
+          - name: http
+            containerPort: 8080
             protocol: TCP
         probes:
           liveness:
