@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: jellyfin
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: ghcr.io/bjw-s-labs/helm
+      chart: app-template
+      targetRevision: 5.0.1
+      helm:
+        valueFiles:
+          - $values/apps-manifests/tools/homepage/values.yaml
+    - repoURL: https://github.com/crocofied/homelab.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: tools
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
