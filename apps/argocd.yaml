@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://argoproj.github.io/argo-helm
+    chart: argo-cd
+    targetRevision: 8.x   # TODO: auf exakte Version pinnen (helm search repo / artifacthub.io)
+    helm:
+      valuesObject:
+        global:
+          domain: argocd.damians.cloud
+        configs:
+          params:
+            server.insecure: true   # TLS terminiert Traefik, sonst Redirect-Loop
+        server:
+          ingress:
+            enabled: true
+            tls: true
+            annotations:
+              cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated: { prune: true, selfHeal: true }
+    syncOptions: [ServerSideApply=true]
