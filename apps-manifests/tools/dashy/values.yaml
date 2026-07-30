@@ -4,9 +4,13 @@ controllers:
       app:
         image:
           repository: lissy93/dashy
-          tag: 4.5.0  
+          tag: 4.5.0
         env:
           NODE_ENV: production
+        ports:
+          http:
+            containerPort: 8080 
+            protocol: TCP
         probes:
           liveness:
             enabled: true
