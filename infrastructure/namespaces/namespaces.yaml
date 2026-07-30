@@ -33,3 +33,8 @@ metadata:
   name: intel-device-plugins
   labels:
     pod-security.kubernetes.io/enforce: privileged
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tools
