@@ -10,4 +10,4 @@ spec:
     server: 192.168.3.20
     path: /volume1/media
   persistentVolumeReclaimPolicy: Retain   
-  mountOptions: [nfsvers=4.1]
+  mountOptions: [nfsvers=3, nolock]
