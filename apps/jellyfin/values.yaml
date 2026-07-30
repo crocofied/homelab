@@ -1,0 +1,74 @@
+controllers:
+  jellyfin:
+    containers:
+      app:
+        image:
+          repository: jellyfin/jellyfin
+          tag: 10.10.7
+        env:
+          TZ: Europe/Berlin
+          JELLYFIN_PublishedServerUrl: https://jellyfin.damians.cloud
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+            gpu.intel.com/i915: "1"
+          limits:
+            memory: 4Gi
+            gpu.intel.com/i915: "1"
+        probes:
+          liveness:
+            enabled: true
+          readiness:
+            enabled: true
+
+defaultPodOptions:
+  nodeSelector:
+    intel.feature.node.kubernetes.io/gpu: "true"
+  securityContext:
+    fsGroup: 1000
+    supplementalGroups:
+      - 44
+      - 104
+
+service:
+  app:
+    controller: jellyfin
+    ports:
+      http:
+        port: 8096
+
+ingress:
+  app:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-cloudflare  
+    hosts:
+      - host: jellyfin.damians.cloud
+        paths:
+          - path: /
+            service:
+              identifier: app
+              port: http
+    tls:
+      - secretName: jellyfin-tls
+        hosts:
+          - jellyfin.damians.cloud
+
+persistence:
+  config:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 10Gi
+    storageClass: longhorn
+    globalMounts:
+      - path: /config
+  media:
+    existingClaim: nas-media        
+    globalMounts:
+      - path: /media
+        readOnly: true
+  transcode:
+    type: emptyDir
+    globalMounts:
+      - path: /transcode
