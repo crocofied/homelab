@@ -19,8 +19,11 @@ spec:
             metallb.io/loadBalancerIPs: 192.168.3.141  
         ports:
           web:
-            redirections:
-              entryPoint: { to: websecure, scheme: https } 
+            http:
+              redirections:
+                entryPoint:
+                  to: websecure
+                  scheme: https
         ingressClass:
           enabled: true
           isDefaultClass: true
