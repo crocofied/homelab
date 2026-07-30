@@ -1,0 +1,48 @@
+controllers:
+  n8n:
+    containers:
+      app:
+        image:
+          repository: n8nio/n8n
+          tag: 2.33.2
+        env:
+          GENERIC_TIMEZONE: Europe/Berlin
+          N8N_SECURE_COOKIE: false
+        probes:
+          liveness:
+            enabled: true
+          readiness:
+            enabled: true
+
+service:
+  app:
+    controller: n8n
+    ports:
+      http:
+        port: 5678
+
+ingress:
+  app:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+    hosts:
+      - host: n8n.damians.cloud
+        paths:
+          - path: /
+            service:
+              identifier: app
+              port: http
+    tls:
+      - secretName: n8n-tls
+        hosts:
+          - n8n.damians.cloud
+
+persistence:
+  config:                      
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 5Gi
+    storageClass: longhorn
+    globalMounts:
+      - path: /home/node/.n8n   
