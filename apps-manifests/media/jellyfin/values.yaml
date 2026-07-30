@@ -4,7 +4,7 @@ controllers:
       app:
         image:
           repository: jellyfin/jellyfin
-          tag: 10.10.7
+          tag: 10.11.11
         env:
           TZ: Europe/Berlin
           JELLYFIN_PublishedServerUrl: https://jellyfin.damians.cloud
