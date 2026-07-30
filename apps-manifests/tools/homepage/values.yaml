@@ -1,0 +1,48 @@
+controllers:
+  homepage:
+    containers:
+      app:
+        image:
+          repository: ghcr.io/gethomepage/homepage
+          tag: v1.9.1
+        env:
+          TZ: Europe/Berlin
+          HOMEPAGE_ALLOWED_HOSTS: damians.cloud
+        probes:
+          liveness:
+            enabled: true
+          readiness:
+            enabled: true
+
+service:
+  app:
+    controller: homepage
+    ports:
+      http:
+        port: 3000
+
+ingress:
+  app:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+    hosts:
+      - host: damians.cloud
+        paths:
+          - path: /
+            service:
+              identifier: app
+              port: http
+    tls:
+      - secretName: homepage-tls
+        hosts:
+          - damians.cloud
+
+persistence:
+  config:                      
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    storageClass: longhorn
+    globalMounts:
+      - path: /app/config     
