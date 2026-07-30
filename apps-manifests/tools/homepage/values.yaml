@@ -7,7 +7,7 @@ controllers:
           tag: v1.13.2
         env:
           TZ: Europe/Berlin
-          HOMEPAGE_ALLOWED_HOSTS: damians.cloud
+          HOMEPAGE_ALLOWED_HOSTS: home.damians.cloud
         probes:
           liveness:
             enabled: true
@@ -27,7 +27,7 @@ ingress:
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt-cloudflare
     hosts:
-      - host: damians.cloud
+      - host: home.damians.cloud
         paths:
           - path: /
             service:
@@ -36,7 +36,7 @@ ingress:
     tls:
       - secretName: homepage-tls
         hosts:
-          - damians.cloud
+          - home.damians.cloud
 
 persistence:
   config:                      
