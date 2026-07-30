@@ -11,6 +11,8 @@ spec:
     targetRevision: 34.1.0
     helm:
       valuesObject:
+        deployment:
+          replicas: 2
         service:
           type: LoadBalancer
           annotations:
