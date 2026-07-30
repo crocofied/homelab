@@ -1,13 +1,12 @@
 controllers:
-  homepage:
+  dashy:
     containers:
       app:
         image:
-          repository: ghcr.io/gethomepage/homepage
-          tag: v1.13.2
+          repository: lissy93/dashy
+          tag: 4.5.0  
         env:
-          TZ: Europe/Berlin
-          HOMEPAGE_ALLOWED_HOSTS: home.damians.cloud
+          NODE_ENV: production
         probes:
           liveness:
             enabled: true
@@ -16,10 +15,10 @@ controllers:
 
 service:
   app:
-    controller: homepage
+    controller: dashy
     ports:
       http:
-        port: 3000
+        port: 4000
 
 ingress:
   app:
@@ -34,7 +33,7 @@ ingress:
               identifier: app
               port: http
     tls:
-      - secretName: homepage-tls
+      - secretName: dashy-tls
         hosts:
           - home.damians.cloud
 
@@ -45,4 +44,4 @@ persistence:
     size: 1Gi
     storageClass: longhorn
     globalMounts:
-      - path: /app/config     
+      - path: /app/user-data     

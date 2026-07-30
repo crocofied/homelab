@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: homepage
+  name: dashy
   namespace: argocd
 spec:
   project: default
@@ -11,7 +11,7 @@ spec:
       targetRevision: 5.0.1
       helm:
         valueFiles:
-          - $values/apps-manifests/tools/homepage/values.yaml
+          - $values/apps-manifests/tools/dashy/values.yaml
     - repoURL: https://github.com/crocofied/homelab.git
       targetRevision: main
       ref: values
