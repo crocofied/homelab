@@ -7,10 +7,6 @@ controllers:
           tag: 4.5.0
         env:
           NODE_ENV: production
-        ports:
-          - name: http
-            containerPort: 8080
-            protocol: TCP
         probes:
           liveness:
             enabled: true
@@ -22,7 +18,7 @@ service:
     controller: dashy
     ports:
       http:
-        port: 4000
+        port: 8080
 
 ingress:
   app:
