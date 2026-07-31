@@ -1,22 +1,44 @@
+appConfig:
+  language: de
+  theme: lissy
+  layout: vertical
+  iconSize: large
 pageInfo:
   title: Home Lab
-sections: # An array of sections
-- name: Example Section
-  icon: far fa-rocket
-  items:
-  - title: GitHub
-    description: Dashy source code and docs
-    icon: fab fa-github
-    url: https://github.com/Lissy93/dashy
-  - title: Issues
-    description: View open issues, or raise a new one
-    icon: fas fa-bug
-    url: https://github.com/Lissy93/dashy/issues
-- name: Local Services
-  items:
-  - title: Firewall
-    icon: favicon
-    url: http://192.168.1.1/
-  - title: Game Server
-    icon: https://i.ibb.co/710B3Yc/space-invader-x256.png
-    url: http://192.168.130.1/
+sections:
+  - name: General
+    items: []
+    widgets:
+      - type: clock
+        options:
+          timeZone: Europe/Berlin
+          format: de-DE
+          hideDate: false
+      - type: domain-monitor
+        options:
+          domain: damians.cloud
+          apiKey: 3c360f7a76aa216880a102d64edfff94
+          showFullInfo: true
+  - name: Management
+    items:
+      - title: Argo CD
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/argo-cd.png
+        url: https://argocd.damians.cloud/
+        target: newtab
+      - title: Longhorn
+        icon: >-
+          https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/rancher-longhorn.png
+        url: https://longhorn.damians.cloud/
+        target: newtab
+    widgets: []
+  - name: Media
+    items:
+      - title: Jellyfin
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/jellyfin.png
+        url: https://jellyfin.damians.cloud/
+        target: newtab
+      - title: Paperless NGX
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/paperless-ngx.png
+        url: https://paperless.damians.cloud/
+        target: newtab
+pages: []
