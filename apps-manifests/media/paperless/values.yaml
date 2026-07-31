@@ -35,6 +35,11 @@ controllers:
               secretKeyRef:
                 name: paperless-db-app
                 key: password
+          PAPERLESS_SECRET_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: paperless-secret
+                key: PAPERLESS_SECRET_KEY
         probes:
           liveness:
             enabled: true
