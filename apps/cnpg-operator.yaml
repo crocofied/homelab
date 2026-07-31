@@ -14,3 +14,5 @@ spec:
     namespace: cnpg-system
   syncPolicy:
     automated: { prune: true, selfHeal: true }
+    syncOptions:
+      - ServerSideApply=true
