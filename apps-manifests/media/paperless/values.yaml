@@ -1,0 +1,125 @@
+controllers:
+  paperless:
+    containers:
+      app:
+        image:
+          repository: ghcr.io/paperless-ngx/paperless-ngx
+          tag: latest
+        env:
+          PAPERLESS_TIME_ZONE: Europe/Berlin
+          PAPERLESS_URL: https://paperless.damians.cloud
+          PAPERLESS_REDIS: redis://paperless-broker:6379
+          PAPERLESS_DBENGINE: postgresql
+          PAPERLESS_DBHOST:
+            valueFrom:
+              secretKeyRef:
+                name: paperless-db-app
+                key: host
+          PAPERLESS_DBPORT:
+            valueFrom:
+              secretKeyRef:
+                name: paperless-db-app
+                key: port
+          PAPERLESS_DBNAME:
+            valueFrom:
+              secretKeyRef:
+                name: paperless-db-app
+                key: dbname
+          PAPERLESS_DBUSER:
+            valueFrom:
+              secretKeyRef:
+                name: paperless-db-app
+                key: username
+          PAPERLESS_DBPASS:
+            valueFrom:
+              secretKeyRef:
+                name: paperless-db-app
+                key: password
+        probes:
+          liveness:
+            enabled: true
+          readiness:
+            enabled: true
+
+  paperless-broker:
+    containers:
+      app:
+        image:
+          repository: docker.io/valkey/valkey
+          tag: 9-alpine
+
+defaultPodOptions:
+  securityContext:
+    fsGroup: 1000
+
+service:
+  app:
+    controller: paperless
+    ports:
+      http:
+        port: 8000
+  broker:
+    controller: paperless-broker
+    ports:
+      redis:
+        port: 6379
+
+ingress:
+  app:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+    hosts:
+      - host: paperless.damians.cloud
+        paths:
+          - path: /
+            service:
+              identifier: app
+              port: http
+    tls:
+      - secretName: paperless-tls
+        hosts:
+          - paperless.damians.cloud
+
+persistence:
+  data:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 2Gi
+    storageClass: longhorn
+    advancedMounts:
+      paperless:
+        app:
+          - path: /usr/src/paperless/data
+  media:
+    existingClaim: nas-media
+    globalMounts:
+      - path: /usr/src/paperless/media
+        subPath: paperless
+  export:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 5Gi
+    storageClass: longhorn
+    advancedMounts:
+      paperless:
+        app:
+          - path: /usr/src/paperless/export
+  consume:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 2Gi
+    storageClass: longhorn
+    advancedMounts:
+      paperless:
+        app:
+          - path: /usr/src/paperless/consume
+  broker-data:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    storageClass: longhorn
+    advancedMounts:
+      paperless-broker:
+        app:
+          - path: /data
