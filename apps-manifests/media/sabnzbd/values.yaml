@@ -9,6 +9,7 @@ controllers:
           TZ: Europe/Berlin
           PUID: "1000"
           PGID: "1000"
+          HOST_WHITELIST_ENTRIES: "sabnzbd.damians.cloud"
         probes:
           liveness:
             enabled: true
