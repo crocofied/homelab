@@ -1,5 +1,21 @@
 controllers:
   sabnzbd:
+    initContainers:
+      set-whitelist:
+        image:
+          repository: busybox
+          tag: "1.37"
+        command:
+          - sh
+          - -c
+          - |
+            f=/config/sabnzbd.ini
+            [ -f "$f" ] || exit 0
+            if grep -q '^host_whitelist' "$f"; then
+              sed -i 's|^host_whitelist.*|host_whitelist = sabnzbd.damians.cloud|' "$f"
+            else
+              sed -i '/^\[misc\]/a host_whitelist = sabnzbd.damians.cloud' "$f"
+            fi
     containers:
       app:
         image:
@@ -9,7 +25,6 @@ controllers:
           TZ: Europe/Berlin
           PUID: "1000"
           PGID: "1000"
-          HOST_WHITELIST_ENTRIES: "sabnzbd.damians.cloud"
         probes:
           liveness:
             enabled: true
@@ -45,15 +60,13 @@ ingress:
           - sabnzbd.damians.cloud
 
 persistence:
-  data:
+  config:
     type: persistentVolumeClaim
     accessMode: ReadWriteOnce
     size: 2Gi
     storageClass: longhorn
-    advancedMounts:
-      sabnzbd:
-        app:
-          - path: /config
+    globalMounts:
+      - path: /config
   media:
     existingClaim: nas-media
     globalMounts:
