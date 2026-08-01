@@ -1,0 +1,59 @@
+controllers:
+  sabnzbd:
+    containers:
+      app:
+        image:
+          repository: lscr.io/linuxserver/sabnzbd
+          tag: 5.0.4
+        env:
+          TZ: Europe/Berlin
+          PUID: "1000"
+          PGID: "1000"
+        probes:
+          liveness:
+            enabled: true
+          readiness:
+            enabled: true
+
+defaultPodOptions:
+  securityContext:
+    fsGroup: 1000
+
+service:
+  app:
+    controller: sabnzbd
+    ports:
+      http:
+        port: 8080
+
+ingress:
+  app:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+    hosts:
+      - host: sabnzbd.damians.cloud
+        paths:
+          - path: /
+            service:
+              identifier: app
+              port: http
+    tls:
+      - secretName: sabnzbd-tls
+        hosts:
+          - sabnzbd.damians.cloud
+
+persistence:
+  data:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 2Gi
+    storageClass: longhorn
+    advancedMounts:
+      sabnzbd:
+        app:
+          - path: /config
+  media:
+    existingClaim: nas-media
+    globalMounts:
+      - path: /media
