@@ -1,0 +1,92 @@
+controllers:
+  tandoor:
+    containers:
+      app:
+        image:
+          repository: vabene1111/recipes
+          tag: 2.6.13
+        env:
+          TZ: Europe/Berlin
+          ALLOWED_HOSTS: tandoor.damians.cloud
+          DB_ENGINE: django.db.backends.postgresql
+          CSRF_TRUSTED_ORIGINS: ["https://tandoor.damians.cloud"]
+          POSTGRES_HOST:
+            valueFrom:
+              secretKeyRef:
+                name: tandoor-db-app
+                key: host
+          POSTGRES_PORT:
+            valueFrom:
+              secretKeyRef:
+                name: tandoor-db-app
+                key: port
+          POSTGRES_DB:
+            valueFrom:
+              secretKeyRef:
+                name: tandoor-db-app
+                key: dbname
+          POSTGRES_USER:
+            valueFrom:
+              secretKeyRef:
+                name: tandoor-db-app
+                key: username
+          POSTGRES_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: tandoor-db-app
+                key: password
+          SECRET_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: tandoor-secret
+                key: SECRET_KEY
+        probes:
+          liveness:
+            enabled: true
+          readiness:
+            enabled: true
+
+service:
+  app:
+    controller: tandoor
+    ports:
+      http:
+        port: 80
+
+ingress:
+  app:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+    hosts:
+      - host: tandoor.damians.cloud
+        paths:
+          - path: /
+            service:
+              identifier: app
+              port: http
+    tls:
+      - secretName: tandoor-tls
+        hosts:
+          - tandoor.damians.cloud
+
+persistence:
+  staticfiles:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 2Gi
+    storageClass: longhorn
+    advancedMounts:
+      tandoor:
+        app:
+          - path: /opt/recipes/staticfiles
+  mediafiles:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 2Gi
+    storageClass: longhorn
+    advancedMounts:
+      tandoor:
+        app:
+          - path: /opt/recipes/mediafiles
+  
