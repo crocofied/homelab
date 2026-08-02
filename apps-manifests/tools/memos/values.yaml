@@ -1,0 +1,49 @@
+controllers:
+  memos:
+    containers:
+      app:
+        image:
+          repository: neosmemo/memos
+          tag: 0.30.0
+        env:
+          MEMOS_PORT: 5230
+          MEMOS_DRIVER: sqlite
+          MEMOS_INSTANCE_URL: https://memos.damians.cloud
+        probes:
+          liveness:
+            enabled: true
+          readiness:
+            enabled: true
+
+service:
+  app:
+    controller: memos
+    ports:
+      http:
+        port: 5230
+
+ingress:
+  app:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+    hosts:
+      - host: memos.damians.cloud
+        paths:
+          - path: /
+            service:
+              identifier: app
+              port: http
+    tls:
+      - secretName: memos-tls
+        hosts:
+          - memos.damians.cloud
+
+persistence:
+  config:                      
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 10Gi
+    storageClass: longhorn
+    globalMounts:
+      - path: /var/opt/memos     
