@@ -1,0 +1,115 @@
+controllers:
+  karakeep:
+    containers:
+      app:
+        image:
+          repository: ghcr.io/karakeep-app/karakeep
+          tag: 0.33.1
+        env:
+          MEILI_ADDR: http://karakeep-meilisearch:7700
+          BROWSER_WEB_URL: http://karakeep-chrome:9222
+          NEXTAUTH_URL: https://karakeep.damians.cloud
+          DATA_DIR: /data # DON'T CHANGE THIS
+          NEXTAUTH_SECRET:
+            valueFrom:
+              secretKeyRef:
+                name: karakeep-secret
+                key: NEXTAUTH_SECRET
+          MEILI_MASTER_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: karakeep-secret
+                key: MEILI_MASTER_KEY
+        probes:
+          liveness:
+            enabled: true
+          readiness:
+            enabled: true
+
+  karakeep-chrome:
+    containers:
+      app:
+        image:
+          repository: gcr.io/zenika-hub/alpine-chrome
+          tag: "124"
+        args:
+          - --no-sandbox
+          - --disable-gpu
+          - --disable-dev-shm-usage
+          - --remote-debugging-address=0.0.0.0
+          - --remote-debugging-port=9222
+          - --hide-scrollbars
+          - --disable-blink-features=AutomationControlled
+          - --window-size=1440,900
+
+  karakeep-meilisearch:
+    containers:
+      app:
+        image:
+          repository: getmeili/meilisearch
+          tag: v1.41.0
+        env:
+          MEILI_NO_ANALYTICS: "true"
+          MEILI_MASTER_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: karakeep-secret
+                key: MEILI_MASTER_KEY
+
+defaultPodOptions:
+  securityContext:
+    fsGroup: 1000
+
+service:
+  app:
+    controller: karakeep
+    ports:
+      http:
+        port: 3000
+  chrome:
+    controller: karakeep-chrome
+    ports:
+      http:
+        port: 9222
+  meilisearch:
+    controller: karakeep-meilisearch
+    ports:
+      http:
+        port: 7700
+
+ingress:
+  app:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+    hosts:
+      - host: karakeep.damians.cloud
+        paths:
+          - path: /
+            service:
+              identifier: app
+              port: http
+    tls:
+      - secretName: karakeep-tls
+        hosts:
+          - karakeep.damians.cloud
+
+persistence:
+  data:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 5Gi
+    storageClass: longhorn
+    advancedMounts:
+      karakeep:
+        app:
+          - path: /data
+  meilisearch-data:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 2Gi
+    storageClass: longhorn
+    advancedMounts:
+      karakeep-meilisearch:
+        app:
+          - path: /meili_data
