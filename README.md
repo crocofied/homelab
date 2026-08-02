@@ -339,6 +339,10 @@ kubectl create secret generic paperless-secret `
   --from-literal=PAPERLESS_SECRET_KEY="<RANDOM>"
 ```
 
+Newer secrets (e.g. Karakeep) aren't created manually anymore — they're encrypted
+with [Sealed Secrets](https://github.com/bitnami-labs/sealed-secrets) and committed
+as ciphertext. See `docs/secrets.md`.
+
 The `cert-manager` and `media` namespaces come from `infrastructure/namespaces/`,
 so let the namespaces sync first, then create the secrets, then let the rest sync.
 
