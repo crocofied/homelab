@@ -1,10 +1,15 @@
 controllers:
   radarr:
+    strategy: Recreate
     containers:
       app:
         image:
           repository: lscr.io/linuxserver/radarr
           tag: 6.3.0
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
         env:
           TZ: Europe/Berlin
           PUID: "1000"

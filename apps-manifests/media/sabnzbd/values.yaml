@@ -1,5 +1,6 @@
 controllers:
   sabnzbd:
+    strategy: Recreate
     initContainers:
       set-whitelist:
         image:
@@ -21,6 +22,10 @@ controllers:
         image:
           repository: lscr.io/linuxserver/sabnzbd
           tag: 5.0.4
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
         env:
           TZ: Europe/Berlin
           PUID: "1000"

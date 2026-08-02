@@ -1,10 +1,15 @@
 controllers:
   tandoor:
+    strategy: Recreate
     containers:
       app:
         image:
           repository: vabene1111/recipes
           tag: 2.6.13
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
         env:
           TZ: Europe/Berlin
           ALLOWED_HOSTS: tandoor.damians.cloud

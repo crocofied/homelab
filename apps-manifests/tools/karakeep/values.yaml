@@ -1,10 +1,15 @@
 controllers:
   karakeep:
+    strategy: Recreate
     containers:
       app:
         image:
           repository: ghcr.io/karakeep-app/karakeep
           tag: 0.33.1
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
         env:
           MEILI_ADDR: http://karakeep-meilisearch:7700
           BROWSER_WEB_URL: http://karakeep-chrome:9222

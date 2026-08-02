@@ -1,10 +1,15 @@
 controllers:
   sonarr:
+    strategy: Recreate
     containers:
       app:
         image:
           repository: lscr.io/linuxserver/sonarr
           tag: 4.0.19
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
         env:
           TZ: Europe/Berlin
           PUID: "1000"

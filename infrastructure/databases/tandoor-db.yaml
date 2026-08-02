@@ -13,3 +13,7 @@ spec:
     initdb:
       database: tandoor
       owner: tandoor
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi

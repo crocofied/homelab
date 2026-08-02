@@ -1,10 +1,15 @@
 controllers:
   memos:
+    strategy: Recreate
     containers:
       app:
         image:
           repository: neosmemo/memos
           tag: 0.30.0
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
         env:
           MEMOS_PORT: 5230
           MEMOS_DRIVER: sqlite

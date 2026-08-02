@@ -1,10 +1,15 @@
 controllers:
   paperless:
+    strategy: Recreate
     containers:
       app:
         image:
           repository: ghcr.io/paperless-ngx/paperless-ngx
           tag: 3.0.5
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
         env:
           PAPERLESS_TIME_ZONE: Europe/Berlin
           PAPERLESS_URL: https://paperless.damians.cloud

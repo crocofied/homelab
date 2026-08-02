@@ -1,10 +1,15 @@
 controllers:
   openwebui:
+    strategy: Recreate
     containers:
       app:
         image:
           repository: ghcr.io/open-webui/open-webui
           tag: git-01f4282
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
         probes:
           liveness:
             enabled: true

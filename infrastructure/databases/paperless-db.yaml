@@ -13,3 +13,7 @@ spec:
     initdb:
       database: paperless
       owner: paperless
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
