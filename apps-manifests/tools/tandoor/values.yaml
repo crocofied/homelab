@@ -9,7 +9,7 @@ controllers:
           TZ: Europe/Berlin
           ALLOWED_HOSTS: tandoor.damians.cloud
           DB_ENGINE: django.db.backends.postgresql
-          CSRF_TRUSTED_ORIGINS: ["https://tandoor.damians.cloud"]
+          CSRF_TRUSTED_ORIGINS: '["https://tandoor.damians.cloud"]'
           POSTGRES_HOST:
             valueFrom:
               secretKeyRef:
