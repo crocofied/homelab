@@ -2,7 +2,7 @@ talosconfig
 kubeconfig
 *.key
 *.pem
-secrets/
+/secrets/
 
 controlplane.yaml
 worker.yaml
