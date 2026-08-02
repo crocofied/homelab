@@ -1,0 +1,57 @@
+controllers:
+  radarr:
+    containers:
+      app:
+        image:
+          repository: lscr.io/linuxserver/radarr
+          tag: 6.3.0
+        env:
+          TZ: Europe/Berlin
+          PUID: "1000"
+          PGID: "1000"
+        probes:
+          liveness:
+            enabled: true
+          readiness:
+            enabled: true
+
+defaultPodOptions:
+  securityContext:
+    fsGroup: 1000
+
+service:
+  app:
+    controller: radarr
+    ports:
+      http:
+        port: 7878
+
+ingress:
+  app:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+    hosts:
+      - host: radarr.damians.cloud
+        paths:
+          - path: /
+            service:
+              identifier: app
+              port: http
+    tls:
+      - secretName: radarr-tls
+        hosts:
+          - radarr.damians.cloud
+
+persistence:
+  config:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 2Gi
+    storageClass: longhorn
+    globalMounts:
+      - path: /config
+  media:
+    existingClaim: nas-media
+    globalMounts:
+      - path: /media
