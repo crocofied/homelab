@@ -1,0 +1,57 @@
+controllers:
+  sonarr:
+    containers:
+      app:
+        image:
+          repository: lscr.io/linuxserver/sonarr
+          tag: 4.0.19
+        env:
+          TZ: Europe/Berlin
+          PUID: "1000"
+          PGID: "1000"
+        probes:
+          liveness:
+            enabled: true
+          readiness:
+            enabled: true
+
+defaultPodOptions:
+  securityContext:
+    fsGroup: 1000
+
+service:
+  app:
+    controller: sonarr
+    ports:
+      http:
+        port: 8989
+
+ingress:
+  app:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+    hosts:
+      - host: sonarr.damians.cloud
+        paths:
+          - path: /
+            service:
+              identifier: app
+              port: http
+    tls:
+      - secretName: sonarr-tls
+        hosts:
+          - sonarr.damians.cloud
+
+persistence:
+  config:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 2Gi
+    storageClass: longhorn
+    globalMounts:
+      - path: /config
+  media:
+    existingClaim: nas-media
+    globalMounts:
+      - path: /media
