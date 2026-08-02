@@ -1,0 +1,45 @@
+controllers:
+  openwebui:
+    containers:
+      app:
+        image:
+          repository: ghcr.io/open-webui/open-webui
+          tag: git-01f4282
+        probes:
+          liveness:
+            enabled: true
+          readiness:
+            enabled: true
+
+service:
+  app:
+    controller: openwebui
+    ports:
+      http:
+        port: 8080
+
+ingress:
+  app:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+    hosts:
+      - host: ai.damians.cloud
+        paths:
+          - path: /
+            service:
+              identifier: app
+              port: http
+    tls:
+      - secretName: openwebui-tls
+        hosts:
+          - ai.damians.cloud
+
+persistence:
+  config:                      
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 2Gi
+    storageClass: longhorn
+    globalMounts:
+      - path: /app/backend/data   
