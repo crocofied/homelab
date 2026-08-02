@@ -4,7 +4,7 @@ controllers:
       app:
         image:
           repository: ghcr.io/paperless-ngx/paperless-ngx
-          tag: 3.0.4
+          tag: 3.0.5
         env:
           PAPERLESS_TIME_ZONE: Europe/Berlin
           PAPERLESS_URL: https://paperless.damians.cloud
