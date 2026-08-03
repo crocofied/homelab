@@ -1,0 +1,148 @@
+crds:
+  enabled: true
+
+alertmanager:
+  alertmanagerSpec:
+    replicas: 1
+    retention: 120h
+    podMetadata:
+      labels:
+        workload: selfhosted
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            workload: selfhosted
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: longhorn
+          accessModes: [ReadWriteOnce]
+          resources:
+            requests:
+              storage: 2Gi
+
+prometheus:
+  prometheusSpec:
+    retention: 30d
+    retentionSize: 40GB
+    replicas: 1
+    scrapeInterval: 30s
+    podMetadata:
+      labels:
+        workload: selfhosted
+    topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            workload: selfhosted
+    resources:
+      requests:
+        cpu: 500m
+        memory: 2Gi
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    probeSelectorNilUsesHelmValues: false
+    scrapeConfigSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: longhorn
+          accessModes: [ReadWriteOnce]
+          resources:
+            requests:
+              storage: 50Gi
+  ingress:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+    hosts: [prometheus.damians.cloud]
+    paths: ["/"]
+    tls:
+      - secretName: prometheus-tls
+        hosts: [prometheus.damians.cloud]
+
+grafana:
+  defaultDashboardsEnabled: true
+  defaultDashboardsTimezone: browser
+  podLabels:
+    workload: selfhosted
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          workload: selfhosted
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  persistence:
+    enabled: true
+    type: pvc
+    storageClassName: longhorn
+    accessModes: [ReadWriteOnce]
+    size: 5Gi
+  grafana.ini:
+    server:
+      root_url: https://grafana.damians.cloud
+    date_formats:
+      default_timezone: Europe/Berlin
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      labelValue: "1"
+      searchNamespace: ALL
+      folderAnnotation: grafana_folder
+      provider:
+        foldersFromFilesStructure: true
+    datasources:
+      enabled: true
+      searchNamespace: ALL
+  ingress:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+    hosts: [grafana.damians.cloud]
+    path: /
+    tls:
+      - secretName: grafana-tls
+        hosts: [grafana.damians.cloud]
+
+prometheusOperator:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+kube-state-metrics:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+
+prometheus-node-exporter:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+kubeControllerManager:
+  endpoints: [192.168.3.139, 192.168.3.133, 192.168.3.182]
+kubeScheduler:
+  endpoints: [192.168.3.139, 192.168.3.133, 192.168.3.182]
+kubeEtcd:
+  endpoints: [192.168.3.139, 192.168.3.133, 192.168.3.182]
+kubeProxy:
+  enabled: false
