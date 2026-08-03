@@ -24,6 +24,15 @@ controllers:
             enabled: true
 
 defaultPodOptions:
+  labels:
+    workload: selfhosted
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          workload: selfhosted
   nodeSelector:
     intel.feature.node.kubernetes.io/gpu: "true"
   securityContext:

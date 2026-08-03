@@ -5,6 +5,16 @@ metadata:
   namespace: media
 spec:
   instances: 1
+  inheritedMetadata:
+    labels:
+      workload: selfhosted
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          workload: selfhosted
   imageName: ghcr.io/cloudnative-pg/postgresql:18
   storage:
     size: 5Gi
