@@ -139,10 +139,14 @@ prometheus-node-exporter:
       memory: 64Mi
 
 kubeControllerManager:
-  endpoints: [192.168.3.139, 192.168.3.133, 192.168.3.182]
+  service:
+    selector:
+      k8s-app: kube-controller-manager
 kubeScheduler:
-  endpoints: [192.168.3.139, 192.168.3.133, 192.168.3.182]
+  service:
+    selector:
+      k8s-app: kube-scheduler
 kubeEtcd:
-  endpoints: [192.168.3.139, 192.168.3.133, 192.168.3.182]
+  enabled: false
 kubeProxy:
   enabled: false
