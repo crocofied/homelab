@@ -13,6 +13,11 @@ controllers:
         env:
           GENERIC_TIMEZONE: Europe/Berlin
           N8N_SECURE_COOKIE: false
+          N8N_HOST: n8n.damians.cloud
+          N8N_PROTOCOL: https
+          N8N_EDITOR_BASE_URL: https://n8n.damians.cloud
+          WEBHOOK_URL: https://n8n.damians.cloud
+          N8N_SECURE_COOKIE: true
         probes:
           liveness:
             enabled: true
