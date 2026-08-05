@@ -1,0 +1,29 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: n8n-db
+  namespace: tools
+spec:
+  instances: 1
+  inheritedMetadata:
+    labels:
+      workload: selfhosted
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          workload: selfhosted
+  imageName: ghcr.io/cloudnative-pg/postgresql:18
+  storage:
+    size: 5Gi
+    storageClass: longhorn
+  bootstrap:
+    initdb:
+      database: n8n
+      owner: n8n
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
