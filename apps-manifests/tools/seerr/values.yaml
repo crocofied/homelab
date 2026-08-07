@@ -1,0 +1,72 @@
+controllers:
+  seerr:
+    strategy: Recreate
+    containers:
+      app:
+        image:
+          repository: ghcr.io/seerr-team/seerr
+          tag: v3.4.1
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+        env:
+          TZ: Europe/Berlin
+          LOG_LEVEL: debug
+          PORT: "5055"
+        probes:
+          liveness:
+            enabled: true
+          readiness:
+            enabled: true
+
+defaultPodOptions:
+  labels:
+    workload: selfhosted
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    fsGroupChangePolicy: OnRootMismatch
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          workload: selfhosted
+
+service:
+  app:
+    controller: seerr
+    ports:
+      http:
+        port: 5055
+
+ingress:
+  app:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+    hosts:
+      - host: seerr.damians.cloud
+        paths:
+          - path: /
+            service:
+              identifier: app
+              port: http
+    tls:
+      - secretName: seerr-tls
+        hosts:
+          - seerr.damians.cloud
+
+persistence:
+  appdata:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 2Gi
+    storageClass: longhorn
+    advancedMounts:
+      seerr:
+        app:
+          - path: /app/config
