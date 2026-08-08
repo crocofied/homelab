@@ -6,19 +6,6 @@ appConfig:
 pageInfo:
   title: Home Lab
 sections:
-  - name: General
-    items: []
-    widgets:
-      - type: clock
-        options:
-          timeZone: Europe/Berlin
-          format: de-DE
-          hideDate: false
-      - type: domain-monitor
-        options:
-          domain: damians.cloud
-          apiKey: 3c360f7a76aa216880a102d64edfff94
-          showFullInfo: true
   - name: Management
     items:
       - title: Argo CD
@@ -26,11 +13,13 @@ sections:
         url: https://argocd.damians.cloud/
         target: newtab
       - title: Longhorn
-        icon: >-
-          https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/rancher-longhorn.png
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/rancher-longhorn.png
         url: https://longhorn.damians.cloud/
         target: newtab
-    widgets: []
+    widgets:
+      - type: hackernews-trending
+        options:
+          limit: 5
   - name: Media
     items:
       - title: Jellyfin
@@ -40,5 +29,50 @@ sections:
       - title: Paperless NGX
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/paperless-ngx.png
         url: https://paperless.damians.cloud/
+        target: newtab
+      - title: Radarr
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/radarr.png
+        url: https://radarr.damians.cloud/
+        target: newtab
+      - title: Sonarr
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/sonarr.png
+        url: https://sonarr.damians.cloud/
+        target: newtab
+      - title: Sabnzbd
+        description: ''
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/sabnzbd.png
+        url: https://sabnzbd.damians.cloud/
+        target: newtab
+      - title: Seerr
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/seerr.png
+        url: https://seerr.damians.cloud/
+        target: newtab
+  - displayData:
+      cols: 2
+    name: Tools
+    items:
+      - title: Actual Budget
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/actual-budget.png
+        url: https://actual.damians.cloud/
+        target: newtab
+      - title: Karakeep
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/karakeep.png
+        url: https://karakeep.damians.cloud/
+        target: newtab
+      - title: Memos
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/memos.png
+        url: https://memos.damians.cloud/
+        target: newtab
+      - title: N8N
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/n8n.png
+        url: https://n8n.damians.cloud/
+        target: newtab
+      - title: OpenwebUI
+        icon: https://docs.openwebui.com/images/open-webui-icon.png
+        url: https://ai.damians.cloud/
+        target: newtab
+      - title: Tandoor
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/tandoor-recipes.png
+        url: https://tandoor.damians.cloud/
         target: newtab
 pages: []
