@@ -1,0 +1,73 @@
+controllers:
+  spoolman:
+    strategy: Recreate
+    containers:
+      app:
+        image:
+          repository: ghcr.io/donkie/spoolman
+          tag: 0.26.1
+        env:
+          TZ: Europe/Stockholm
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            memory: 512Mi
+        probes:
+          startup:
+            enabled: true
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+          liveness:
+            enabled: true
+          readiness:
+            enabled: true
+
+defaultPodOptions:
+  labels:
+    workload: selfhosted
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          workload: selfhosted
+  securityContext:
+    fsGroup: 1000
+
+service:
+  app:
+    controller: spoolman
+    ports:
+      http:
+        port: 8000
+
+ingress:
+  app:
+    enabled: true
+    className: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+    hosts:
+      - host: spoolman.damians.cloud
+        paths:
+          - path: /
+            service:
+              identifier: app
+              port: http
+    tls:
+      - secretName: spoolman-tls
+        hosts:
+          - spoolman.damians.cloud
+
+persistence:
+  spoolman:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 2Gi
+    storageClass: longhorn
+    globalMounts:
+      - path: /home/app/.local/share/spoolman
