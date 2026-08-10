@@ -23,27 +23,32 @@ sections:
   - name: Media
     items:
       - title: Jellyfin
+        description: Movies & TV streaming
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/jellyfin.png
         url: https://jellyfin.damians.cloud/
         target: newtab
       - title: Paperless NGX
+        description: Document archive & OCR
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/paperless-ngx.png
         url: https://paperless.damians.cloud/
         target: newtab
       - title: Radarr
+        description: Movie collection manager
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/radarr.png
         url: https://radarr.damians.cloud/
         target: newtab
       - title: Sonarr
+        description: TV series manager
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/sonarr.png
         url: https://sonarr.damians.cloud/
         target: newtab
       - title: Sabnzbd
-        description: ''
+        description: Usenet downloader
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/sabnzbd.png
         url: https://sabnzbd.damians.cloud/
         target: newtab
       - title: Seerr
+        description: Media requests & discovery
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/seerr.png
         url: https://seerr.damians.cloud/
         target: newtab
@@ -52,26 +57,47 @@ sections:
     name: Tools
     items:
       - title: Actual Budget
+        description: Personal finance tracking
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/actual-budget.png
         url: https://actual.damians.cloud/
         target: newtab
+      - title: Compose2Homelab
+        description: Docker compose to kubernetes
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/kubernetes.png
+        url: https://compose.damians.cloud/
+        target: newtab
       - title: Karakeep
+        description: Bookmarks & read-it-later
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/karakeep.png
         url: https://karakeep.damians.cloud/
         target: newtab
       - title: Memos
+        description: Quick notes & thoughts
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/memos.png
         url: https://memos.damians.cloud/
         target: newtab
       - title: N8N
+        description: Workflow automation
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/n8n.png
         url: https://n8n.damians.cloud/
         target: newtab
       - title: OpenwebUI
+        description: Local LLM chat interface
         icon: https://docs.openwebui.com/images/open-webui-icon.png
         url: https://ai.damians.cloud/
         target: newtab
+      - title: Password Pusher
+        description: Share secrets securely
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/password-pusher.png
+        url: https://pwpush.damians.cloud/
+        target: newtab
+      - title: Spoolman
+        description: Filament inventory tracker
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/spoolman.png
+        url: https://spoolman.damians.cloud/
+        target: newtab
       - title: Tandoor
+        description: Recipes & meal planning
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/tandoor-recipes.png
         url: https://tandoor.damians.cloud/
         target: newtab
