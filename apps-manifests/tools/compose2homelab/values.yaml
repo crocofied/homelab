@@ -328,6 +328,14 @@ configMaps:
               <label class="eyebrow" for="f-chart">Chart-Version</label>
               <input id="f-chart" value="5.0.1" spellcheck="false">
             </div>
+            <div class="field">
+              <label class="eyebrow" for="f-ingressclass">IngressClass</label>
+              <input id="f-ingressclass" value="traefik" spellcheck="false">
+            </div>
+            <div class="field">
+              <label class="eyebrow" for="f-podcidr">Pod-CIDR</label>
+              <input id="f-podcidr" value="10.244.0.0/16" spellcheck="false">
+            </div>
             <div class="field check">
               <input type="checkbox" id="f-gpu">
               <label class="eyebrow" for="f-gpu">Intel-GPU</label>
@@ -428,6 +436,7 @@ configMaps:
         const NAS_HINT = /(^|\/)(media|movies|tv|shows|series|music|books|photos|documents|downloads|usenet|torrents)(\/|$)/i;
         const SECRET_KEY = /(PASSWORD|PASSWD|SECRET|TOKEN|APIKEY|API_KEY|_KEY$|_SALT$|CREDENTIALS)/i;
         const EXTERNAL_SECRET = /(SMTP|MAIL|OIDC|OAUTH|CLIENT_SECRET|SENTRY|DSN|LICENSE|WEBHOOK|SLACK|DISCORD|GITHUB|GOOGLE|STRIPE|CLOUDFLARE|TELEGRAM)/i;
+        const PROXY_ENV = /(TRUSTED_PROXIES|TRUSTED_PROXY|PROXY_IPS|FORWARDED_ALLOW_IPS|REAL_IP_FROM|TRUSTED_DOWNSTREAM)/i;
         const PG_IMAGE = /(^|\/)(postgres|postgresql)(:|@|$)/i;
         const OTHER_DB_IMAGE = /(^|\/)(mariadb|mysql|percona|mongo)(:|@|$)/i;
         const IMAGE_PORTS = [
@@ -568,6 +577,7 @@ configMaps:
           const envPatch = [];
           const secretKeys = new Set();
           const gpuCtrls = new Set();
+          const guessedMem = new Set();
           let wantsGpu = !!opts.gpu;
           let pg = null;
 
@@ -623,6 +633,13 @@ configMaps:
                 continue;
               }
               outEnv[k] = str;
+              if (PROXY_ENV.test(k)) {
+                const cidr = opts.podCidr || '10.244.0.0/16';
+                if (!str.split(/[,\s]+/).includes(cidr)) {
+                  outEnv[k] = cidr + ',' + str;
+                  note('guessed', svcName + ': ' + k + ' um den Pod-CIDR ' + cidr + ' erweitert. Hinter dem Ingress kommt der Request vom Traefik-Pod, nicht aus dem LAN — ohne den CIDR ignoriert die App X-Forwarded-For/-Proto. CIDR mit "kubectl get pods -A -l app.kubernetes.io/name=traefik -o wide" gegenprüfen.');
+                }
+              }
             }
             for (const v of argVars) {
               if (v in outEnv) continue;
@@ -650,8 +667,9 @@ configMaps:
                 cpu: req.cpus ? Math.round(parseFloat(req.cpus) * 1000) + 'm' : '100m',
                 memory: normSize(req.memory, '256Mi'),
               },
+              limits: { memory: normSize(lim.memory || svc.mem_limit, '1Gi') },
             };
-            if (lim.memory || svc.mem_limit) c.resources.limits = { memory: normSize(lim.memory || svc.mem_limit, '1Gi') };
+            if (!lim.memory && !svc.mem_limit) { guessedMem.add(ctrlName); note('guessed', '', 'memlimit', svcName); }
 
             // devices
             const devices = (svc.devices || []).map(String);
@@ -663,7 +681,11 @@ configMaps:
             const otherDevices = devices.filter((d) => !d.includes('/dev/dri'));
             if (otherDevices.length) note('dropped', svcName + ': devices ' + otherDevices.join(', ') + ' — braucht ein Device-Plugin oder hostPath.');
 
-            if (isMain) c.probes = { liveness: { enabled: true }, readiness: { enabled: true } };
+            if (isMain) c.probes = {
+              startup: { enabled: true, spec: { failureThreshold: 30, periodSeconds: 5 } },
+              liveness: { enabled: true },
+              readiness: { enabled: true },
+            };
 
             // volumes
             for (const vol of normVolumes(svc.volumes)) {
@@ -793,17 +815,22 @@ configMaps:
             const cluster = name + '-db';
             const appSecret = cluster + '-app';
             delete controllers[pg.ctrlName];
+            gpuCtrls.delete(pg.ctrlName);
+            guessedMem.delete(pg.ctrlName);
             for (const [id, s] of Object.entries(serviceBlock)) if (s.controller === pg.ctrlName) delete serviceBlock[id];
             delete dnsMap[pg.svcName];
+            const goneKeys = new Set();
             for (const [key, entry] of Object.entries(persistence)) {
               const before = entry.__mounts.length;
               entry.__mounts = entry.__mounts.filter((m) => m.ctrl !== pg.ctrlName);
-              if (!entry.__mounts.length) { delete persistence[key]; usedPersist.delete(key); }
+              if (!entry.__mounts.length) { delete persistence[key]; usedPersist.delete(key); goneKeys.add(key); }
               else if (entry.__mounts.length !== before) entry.__wasPg = true;
             }
             for (let i = notes.length - 1; i >= 0; i--) {
               const n = notes[i];
-              if ((n.text && n.text.indexOf(pg.svcName + ': ') === 0) || (n.group && n.item === pg.svcName)) notes.splice(i, 1);
+              if ((n.text && n.text.indexOf(pg.svcName + ': ') === 0)
+                || (n.group && n.item === pg.svcName)
+                || (n.group === 'pvcsize' && goneKeys.has(n.item))) notes.splice(i, 1);
             }
             for (const [key, entry] of Object.entries(persistence)) {
               if (entry.__wasPg) note('todo', 'PVC "' + key + '" war das Postgres-Datenverzeichnis und wird jetzt nur noch von anderen Services gemountet. Für Backups des Clusters stattdessen eine CNPG-Backup-CR nutzen.');
@@ -859,7 +886,8 @@ configMaps:
               const mc = controllers[cn] && controllers[cn].containers.app;
               if (!mc) continue;
               mc.resources.requests['gpu.intel.com/i915'] = '1';
-              mc.resources.limits = Object.assign({ memory: '4Gi' }, mc.resources.limits || {});
+              mc.resources.limits = mc.resources.limits || {};
+              if (guessedMem.has(cn)) mc.resources.limits.memory = '4Gi';
               mc.resources.limits['gpu.intel.com/i915'] = '1';
             }
           } else {
@@ -871,6 +899,7 @@ configMaps:
             ingress = {
               app: {
                 enabled: true,
+                className: opts.ingressClass || 'traefik',
                 annotations: { 'cert-manager.io/cluster-issuer': 'letsencrypt-cloudflare' },
                 hosts: [{ host, paths: [{ path: '/', service: { identifier: 'app', port: Object.keys(serviceBlock.app.ports)[0] } }] }],
                 tls: [{ secretName: name + '-tls', hosts: [host] }],
@@ -911,8 +940,9 @@ configMaps:
           }
           const uniq = (a) => [...new Set(a)];
           if (groups.pvcsize) out.push({ kind: 'guessed', text: 'PVC-Größen geraten: ' + uniq(groups.pvcsize.items).join(', ') + '. Longhorn kann nachträglich nur wachsen, nicht schrumpfen.' });
+          if (groups.memlimit) out.push({ kind: 'guessed', text: 'Memory-Limit auf 1Gi geraten bei ' + uniq(groups.memlimit.items).join(', ') + ' — Compose hatte keins. Ohne Limit ist der Pod Burstable und kann den Node unter Druck setzen.' });
           if (groups.dependson) out.push({ kind: 'todo', text: 'depends_on bei ' + uniq(groups.dependson.items).join(', ') + ' hat keine Entsprechung. Die Pods starten parallel und crashen, bis die Abhängigkeit steht.' });
-          if (groups.healthcheck) out.push({ kind: 'guessed', text: 'healthcheck bei ' + uniq(groups.healthcheck.items).join(', ') + ' ersetzt durch die TCP-Default-Probes des Charts.' });
+          if (groups.healthcheck) out.push({ kind: 'guessed', text: 'healthcheck bei ' + uniq(groups.healthcheck.items).join(', ') + ' ersetzt durch die Default-Probes des Charts, plus eine Startup-Probe mit 150s Puffer für Migrationen.' });
           return out;
         }
 
@@ -1022,40 +1052,52 @@ configMaps:
           const ext = res.secrets.external;
           if (!gen.length && !ext.length) return null;
           const secretName = res.name + '-secret';
+          const relPath = 'infrastructure/secrets/' + secretName + '.yaml';
 
           if (shell === 'bash') {
-            const L = ['kubectl create secret generic ' + secretName + ' -n ' + res.category + ' --dry-run=client -o yaml \\'];
+            const L = ['set -o pipefail', 'mkdir -p infrastructure/secrets', ''];
+            L.push('kubectl create secret generic ' + secretName + ' -n ' + res.category + ' \\');
+            L.push('  --dry-run=client -o yaml \\');
             for (const k of gen) L.push('  --from-literal=' + k + '="$(openssl rand -hex 32)" \\');
             for (const k of ext) L.push('  --from-literal=' + k + "='HIER_EINTRAGEN' \\");
             L.push('  | kubeseal --format=yaml \\');
             L.push('      --controller-name=sealed-secrets \\');
             L.push('      --controller-namespace=sealed-secrets \\');
-            L.push('  > infrastructure/secrets/' + secretName + '.yaml');
+            L.push('  > ' + relPath);
             if (ext.length) L.push('', '# HIER_EINTRAGEN vorher ersetzen: ' + ext.join(', '));
             return L.join('\n') + '\n';
           }
 
           // PowerShell, nach infrastructure/secrets/README.md
+          // Bewusst ohne Out-String: das joint mit CRLF und kann die lange Base64-Zeile umbrechen.
           const L = [];
-          L.push('function New-Secret([int]$Bytes = 32) {');
+          L.push("$ErrorActionPreference = 'Stop'");
+          L.push('');
+          L.push('function New-HexKey([int]$Bytes = 32) {');
           L.push('  $b = New-Object byte[] $Bytes');
-          L.push('  [System.Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($b)');
+          L.push('  $rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()');
+          L.push('  try { $rng.GetBytes($b) } finally { $rng.Dispose() }');
           L.push("  -join ($b | ForEach-Object { $_.ToString('x2') })");
           L.push('}');
           L.push('');
-          L.push('$sealed = kubectl create secret generic ' + secretName + ' -n ' + res.category + ' `');
-          for (const k of gen) L.push('  --from-literal=' + k + '="$(New-Secret 32)" `');
-          for (const k of ext) L.push('  --from-literal=' + k + '="HIER_EINTRAGEN" `');
-          L.push('  --dry-run=client -o yaml |');
-          L.push('  kubeseal --format=yaml `');
-          L.push('    --controller-name=sealed-secrets `');
-          L.push('    --controller-namespace=sealed-secrets |');
-          L.push('  Out-String');
+          L.push("$out = Join-Path $PWD '" + relPath.replace(/\//g, '\\') + "'");
+          L.push('New-Item -ItemType Directory -Force -Path (Split-Path $out) | Out-Null');
+          L.push('');
+          L.push('$plain = kubectl create secret generic ' + secretName + ' -n ' + res.category + ' `');
+          for (const k of gen) L.push('  "--from-literal=' + k + '=$(New-HexKey 32)" `');
+          for (const k of ext) L.push('  "--from-literal=' + k + '=HIER_EINTRAGEN" `');
+          L.push('  --dry-run=client -o yaml');
+          L.push('if ($LASTEXITCODE -ne 0) { throw "kubectl failed ($LASTEXITCODE)" }');
+          L.push('');
+          L.push('$sealed = $plain | kubeseal --format=yaml `');
+          L.push('  --controller-name=sealed-secrets `');
+          L.push('  --controller-namespace=sealed-secrets');
+          L.push('if ($LASTEXITCODE -ne 0) { throw "kubeseal failed ($LASTEXITCODE)" }');
           L.push('');
           L.push('[System.IO.File]::WriteAllText(');
-          L.push('  "$PWD\\infrastructure\\secrets\\' + secretName + '.yaml",');
-          L.push('  $sealed.TrimEnd() + "`n",');
-          L.push('  [System.Text.Encoding]::ASCII)');
+          L.push('  $out,');
+          L.push('  (($sealed -join "`n").TrimEnd() + "`n"),');
+          L.push('  [System.Text.UTF8Encoding]::new($false))');
           if (ext.length) { L.push(''); L.push('# HIER_EINTRAGEN vorher ersetzen: ' + ext.join(', ')); }
           return L.join('\n') + '\n';
         }
@@ -1114,7 +1156,7 @@ configMaps:
         `;
 
         const $ = (id) => document.getElementById(id);
-        const inputs = ['f-cat', 'f-domain', 'f-tz', 'f-size', 'f-chart', 'f-gpu', 'f-ingress', 'f-cnpg', 'f-shell'];
+        const inputs = ['f-cat', 'f-domain', 'f-tz', 'f-size', 'f-chart', 'f-ingressclass', 'f-podcidr', 'f-gpu', 'f-ingress', 'f-cnpg', 'f-shell'];
         let nameTouched = false;
 
         // js-yaml quotes with single quotes; the repo style is double
@@ -1150,6 +1192,8 @@ configMaps:
             tz: $('f-tz').value,
             defaultSize: $('f-size').value || '5Gi',
             chartVersion: $('f-chart').value || '5.0.1',
+            ingressClass: $('f-ingressclass').value || 'traefik',
+            podCidr: $('f-podcidr').value || '10.244.0.0/16',
             gpu: $('f-gpu').checked,
             ingress: $('f-ingress').checked,
             cnpg: $('f-cnpg').checked,
