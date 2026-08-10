@@ -1076,7 +1076,7 @@ configMaps:
         services:
           immich-server:
             container_name: immich_server
-            image: ghcr.io/immich-app/immich-server:v1.140.0
+            image: ghcr.io/immich-app/immich-server:v1.144.1
             volumes:
               - \${UPLOAD_LOCATION}:/data
               - /etc/localtime:/etc/localtime:ro
