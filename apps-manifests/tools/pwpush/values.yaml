@@ -1,0 +1,91 @@
+controllers:
+  pwpush:
+    strategy: Recreate
+    containers:
+      app:
+        image:
+          repository: docker.io/pglombardo/pwpush
+          tag: stable
+        env:
+          PWPUSH_MASTER_KEY:
+            valueFrom:
+              secretKeyRef:
+                name: pwpush-secret
+                key: PWPUSH_MASTER_KEY
+          PWP__HOST_DOMAIN: pwpush.damians.cloud
+          PWP__HOST_PROTOCOL: https
+          PWP__TRUSTED_PROXIES: "10.244.0.0/16,192.168.3.0/24"
+          PWP__SECURE_COOKIES: "true"
+          PWP__ALLOW_ANONYMOUS: "true"
+          PWP__ENABLE_URL_PUSHES: "true"
+          PWP__ENABLE_FILE_PUSHES: "true"
+          PWP__ENABLE_QR_PUSHES: "true"
+          PWP__FILES__STORAGE: local
+          PWP__PW__EXPIRE_AFTER_DAYS_DEFAULT: "3"
+          PWP__PW__EXPIRE_AFTER_VIEWS_DEFAULT: "2"
+          PWP__LOG_LEVEL: info
+          PWP__LOG_TO_STDOUT: "true"
+          TZ: Europe/Berlin
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+        probes:
+          startup:
+            enabled: true
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+          liveness:
+            enabled: true
+          readiness:
+            enabled: true
+
+defaultPodOptions:
+  labels:
+    workload: selfhosted
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          workload: selfhosted
+  securityContext:
+    fsGroup: 1000
+
+service:
+  app:
+    controller: pwpush
+    ports:
+      http:
+        port: 5100
+
+ingress:
+  app:
+    enabled: true
+    className: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+    hosts:
+      - host: pwpush.damians.cloud
+        paths:
+          - path: /
+            service:
+              identifier: app
+              port: http
+    tls:
+      - secretName: pwpush-tls
+        hosts:
+          - pwpush.damians.cloud
+
+persistence:
+  storage:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 5Gi
+    storageClass: longhorn
+    globalMounts:
+      - path: /opt/PasswordPusher/storage
