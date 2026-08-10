@@ -1100,7 +1100,7 @@ configMaps:
               - redis-data:/data
             restart: always
           database:
-            image: ghcr.io/immich-app/postgres:14-vectorchord0.4.3
+            image: ghcr.io/immich-app/postgres:17-vectorchord0.4.3
             environment:
               POSTGRES_PASSWORD: postgres
               POSTGRES_USER: postgres
