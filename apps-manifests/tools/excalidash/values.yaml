@@ -10,6 +10,7 @@ controllers:
           DATABASE_URL: file:/app/prisma/dev.db
           PORT: "8000"
           NODE_ENV: production
+          FRONTEND_URL: https://excalidash.damians.cloud
           AUTH_MODE:
             valueFrom:
               secretKeyRef:
