@@ -1,0 +1,109 @@
+controllers:
+  excalidash-backend:
+    containers:
+      app:
+        image:
+          repository: zimengxiong/excalidash-backend
+          tag: latest
+        env:
+          DATABASE_PROVIDER: sqlite
+          DATABASE_URL: file:/app/prisma/dev.db
+          PORT: "8000"
+          NODE_ENV: production
+          AUTH_MODE:
+            valueFrom:
+              secretKeyRef:
+                name: excalidash-secret
+                key: AUTH_MODE
+          TRUST_PROXY: "true"
+          JWT_SECRET:
+            valueFrom:
+              secretKeyRef:
+                name: excalidash-secret
+                key: JWT_SECRET
+          CSRF_SECRET:
+            valueFrom:
+              secretKeyRef:
+                name: excalidash-secret
+                key: CSRF_SECRET
+          TZ: Europe/Berlin
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            memory: 512Mi
+  excalidash:
+    strategy: Recreate
+    containers:
+      app:
+        image:
+          repository: zimengxiong/excalidash-frontend
+          tag: latest
+        env:
+          TZ: Europe/Berlin
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+        probes:
+          startup:
+            enabled: true
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+          liveness:
+            enabled: true
+          readiness:
+            enabled: true
+
+defaultPodOptions:
+  labels:
+    workload: selfhosted
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          workload: selfhosted
+  securityContext:
+    fsGroup: 1000
+
+service:
+  app:
+    controller: excalidash
+    ports:
+      http:
+        port: 80
+
+ingress:
+  app:
+    enabled: true
+    className: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+    hosts:
+      - host: excalidash.damians.cloud
+        paths:
+          - path: /
+            service:
+              identifier: app
+              port: http
+    tls:
+      - secretName: excalidash-tls
+        hosts:
+          - excalidash.damians.cloud
+
+persistence:
+  prisma:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 5Gi
+    storageClass: longhorn
+    advancedMounts:
+      excalidash-backend:
+        app:
+          - path: /app/prisma
