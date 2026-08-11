@@ -66,6 +66,11 @@ sections:
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/kubernetes.png
         url: https://compose.damians.cloud/
         target: newtab
+      - title: Excalidash
+        description: Mindmap & Drawing tool
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/excalidash.png
+        url: https://excalidash.damians.cloud/
+        target: newtab
       - title: Karakeep
         description: Bookmarks & read-it-later
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/karakeep.png
