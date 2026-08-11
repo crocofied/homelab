@@ -1,0 +1,73 @@
+controllers:
+  stirlingpdf:
+    strategy: Recreate
+    containers:
+      app:
+        image:
+          repository: docker.stirlingpdf.com/stirlingtools/stirling-pdf
+          tag: 2.14.3
+        env:
+          TZ: Europe/Berlin
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+        probes:
+          startup:
+            enabled: true
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+          liveness:
+            enabled: true
+          readiness:
+            enabled: true
+
+defaultPodOptions:
+  labels:
+    workload: selfhosted
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          workload: selfhosted
+  securityContext:
+    fsGroup: 1000
+
+service:
+  app:
+    controller: stirlingpdf
+    ports:
+      http:
+        port: 8080
+
+ingress:
+  app:
+    enabled: true
+    className: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+    hosts:
+      - host: stirlingpdf.damians.cloud
+        paths:
+          - path: /
+            service:
+              identifier: app
+              port: http
+    tls:
+      - secretName: stirlingpdf-tls
+        hosts:
+          - stirlingpdf.damians.cloud
+
+persistence:
+  configs:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 5Gi
+    storageClass: longhorn
+    globalMounts:
+      - path: /configs
