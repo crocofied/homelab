@@ -4,7 +4,7 @@ controllers:
       app:
         image:
           repository: zimengxiong/excalidash-backend
-          tag: latest
+          tag: 0.5.1
         env:
           DATABASE_PROVIDER: sqlite
           DATABASE_URL: file:/app/prisma/dev.db
@@ -39,7 +39,7 @@ controllers:
       app:
         image:
           repository: zimengxiong/excalidash-frontend
-          tag: latest
+          tag: 0.5.1
         env:
           TZ: Europe/Berlin
         resources:
