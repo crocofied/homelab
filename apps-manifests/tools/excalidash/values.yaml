@@ -42,6 +42,7 @@ controllers:
           tag: 0.5.1
         env:
           TZ: Europe/Berlin
+          BACKEND_URL: excalidash-backend:8000
         resources:
           requests:
             cpu: 100m
@@ -78,6 +79,11 @@ service:
     ports:
       http:
         port: 80
+  backend:
+    controller: excalidash-backend
+    ports:
+      http:
+        port: 8000
 
 ingress:
   app:
