@@ -1,0 +1,111 @@
+controllers:
+  rackula:
+    strategy: Recreate
+    containers:
+      app:
+        image:
+          repository: ghcr.io/rackulalives/rackula
+          tag: persist
+        env:
+          API_HOST: rackula-api
+          API_PORT: "3001"
+          RACKULA_LISTEN_PORT: "8080"
+          API_WRITE_TOKEN:
+            valueFrom:
+              secretKeyRef:
+                name: rackula-secret
+                key: API_WRITE_TOKEN
+          RACKULA_AUTH_MODE: none
+          RACKULA_STORAGE_MODE: server
+          NGINX_RESOLVER: 127.0.0.11
+          RACKULA_TRUST_PROXY: "1"
+          TZ: Europe/Berlin
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+        probes:
+          startup:
+            enabled: true
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+          liveness:
+            enabled: true
+          readiness:
+            enabled: true
+  rackula-rackula-api:
+    containers:
+      app:
+        image:
+          repository: ghcr.io/rackulalives/rackula-api
+          tag: latest
+        env:
+          DATA_DIR: /data
+          RACKULA_API_PORT: "3001"
+          CORS_ORIGIN: https://rackula.damians.cloud
+          RACKULA_API_WRITE_TOKEN:
+            valueFrom:
+              secretKeyRef:
+                name: rackula-secret
+                key: RACKULA_API_WRITE_TOKEN
+          RACKULA_TRUST_PROXY: "true"
+          RACKULA_AUTH_MODE: none
+          TZ: Europe/Berlin
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+
+defaultPodOptions:
+  labels:
+    workload: selfhosted
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          workload: selfhosted
+  securityContext:
+    fsGroup: 1000
+
+service:
+  app:
+    controller: rackula
+    ports:
+      http:
+        port: 8080
+
+ingress:
+  app:
+    enabled: true
+    className: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+    hosts:
+      - host: rackula.damians.cloud
+        paths:
+          - path: /
+            service:
+              identifier: app
+              port: http
+    tls:
+      - secretName: rackula-tls
+        hosts:
+          - rackula.damians.cloud
+
+persistence:
+  data:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 5Gi
+    storageClass: longhorn
+    advancedMounts:
+      rackula-rackula-api:
+        app:
+          - path: /data
