@@ -101,9 +101,19 @@ sections:
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/spoolman.png
         url: https://spoolman.damians.cloud/
         target: newtab
+      - title: Stirling PDF
+        description: PDF toolkit & editing
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/stirling-pdf.png
+        url: https://stirlingpdf.damians.cloud/
+        target: newtab
       - title: Tandoor
         description: Recipes & meal planning
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/tandoor-recipes.png
         url: https://tandoor.damians.cloud/
+        target: newtab
+      - title: Rustmailer
+        description: E-Mail Archive
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/bichon.png
+        url: https://rustmailer.damians.cloud/
         target: newtab
 pages: []
