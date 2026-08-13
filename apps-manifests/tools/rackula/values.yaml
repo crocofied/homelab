@@ -36,7 +36,7 @@ controllers:
             enabled: true
           readiness:
             enabled: true
-  rackula-rackula-api:
+  api:
     containers:
       app:
         image:
@@ -111,6 +111,6 @@ persistence:
     size: 5Gi
     storageClass: longhorn
     advancedMounts:
-       api:
+      api:
         app:
           - path: /data
