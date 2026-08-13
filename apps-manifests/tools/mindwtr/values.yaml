@@ -1,0 +1,104 @@
+controllers:
+  mindwtr:
+    strategy: Recreate
+    containers:
+      app:
+        image:
+          repository: ghcr.io/dongdongbh/mindwtr-cloud
+          tag: 1.1.6
+        env:
+          MINDWTR_CLOUD_AUTH_TOKENS:
+            valueFrom:
+              secretKeyRef:
+                name: mindwtr-secret
+                key: MINDWTR_CLOUD_AUTH_TOKENS
+          MINDWTR_CLOUD_CORS_ORIGIN:
+            valueFrom:
+              secretKeyRef:
+                name: mindwtr-secret
+                key: MINDWTR_CLOUD_CORS_ORIGIN
+          TZ: Europe/Berlin
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            memory: 512Mi
+        probes:
+          startup:
+            enabled: true
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+          liveness:
+            enabled: true
+          readiness:
+            enabled: true
+  mindwtr-mindwtr-app:
+    containers:
+      app:
+        image:
+          repository: ghcr.io/dongdongbh/mindwtr-app
+          tag: 1.1.6
+        env:
+          TZ: Europe/Berlin
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            memory: 512Mi
+
+defaultPodOptions:
+  labels:
+    workload: selfhosted
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          workload: selfhosted
+  securityContext:
+    fsGroup: 1000
+
+service:
+  app:
+    controller: mindwtr
+    ports:
+      http:
+        port: 8787
+  mindwtr-app:
+    controller: mindwtr-mindwtr-app
+    ports:
+      tcp-5173:
+        port: 5173
+
+ingress:
+  app:
+    enabled: true
+    className: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+    hosts:
+      - host: mindwtr.damians.cloud
+        paths:
+          - path: /
+            service:
+              identifier: app
+              port: http
+    tls:
+      - secretName: mindwtr-tls
+        hosts:
+          - mindwtr.damians.cloud
+
+persistence:
+  cloud-data:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 2Gi
+    storageClass: longhorn
+    advancedMounts:
+      mindwtr:
+        app:
+          - path: /app/cloud_data
