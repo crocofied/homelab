@@ -16,7 +16,7 @@ controllers:
             valueFrom:
               secretKeyRef:
                 name: zipline-secret
-                key: CORE_SECRET
+                key: CORESECRET
           DATASOURCE_TYPE: local
           DATASOURCE_LOCAL_DIRECTORY: /zipline/uploads
           TZ: Europe/Berlin
