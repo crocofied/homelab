@@ -1,0 +1,97 @@
+controllers:
+  zipline:
+    strategy: Recreate
+    containers:
+      app:
+        image:
+          repository: ghcr.io/diced/zipline
+          tag: 4.6.5
+        env:
+          DATABASE_URL:
+            valueFrom:
+              secretKeyRef:
+                name: zipline-db-app
+                key: uri
+          CORE_SECRET:
+            valueFrom:
+              secretKeyRef:
+                name: zipline-secret
+                key: CORE_SECRET
+          DATASOURCE_TYPE: local
+          DATASOURCE_LOCAL_DIRECTORY: /zipline/uploads
+          TZ: Europe/Berlin
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+        probes:
+          startup:
+            enabled: true
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+          liveness:
+            enabled: true
+          readiness:
+            enabled: true
+
+defaultPodOptions:
+  labels:
+    workload: selfhosted
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          workload: selfhosted
+  securityContext:
+    fsGroup: 1000
+
+service:
+  app:
+    controller: zipline
+    ports:
+      http:
+        port: 3000
+
+ingress:
+  app:
+    enabled: true
+    className: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+    hosts:
+      - host: zipline.damians.cloud
+        paths:
+          - path: /
+            service:
+              identifier: app
+              port: http
+    tls:
+      - secretName: zipline-tls
+        hosts:
+          - zipline.damians.cloud
+
+persistence:
+  uploads:
+    existingClaim: nas-media
+    globalMounts:
+      - path: /zipline/uploads
+        subPath: zipline
+  public:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    storageClass: longhorn
+    globalMounts:
+      - path: /zipline/public
+  themes:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 1Gi
+    storageClass: longhorn
+    globalMounts:
+      - path: /zipline/themes
