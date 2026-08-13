@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kubetail
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: https://kubetail-org.github.io/helm-charts/
+      chart: kubetail
+      targetRevision: 0.26.0
+      helm:
+        valueFiles:
+          - $values/apps-manifests/monitoring/kubetail/values.yaml
+    - repoURL: https://github.com/crocofied/homelab.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated: { prune: true, selfHeal: true }
+    syncOptions:
+      - CreateNamespace=false
+      - RespectIgnoreDifferences=true
+  ignoreDifferences:
+    - group: ""
+      kind: Secret
+      name: kubetail-dashboard
+      namespace: monitoring
+      jsonPointers:
+        - /data

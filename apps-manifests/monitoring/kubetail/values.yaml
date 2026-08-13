@@ -1,0 +1,45 @@
+kubetail:
+  dashboard:
+    enabled: true
+    authMode: auto
+
+    runtimeConfig:
+      allowedOrigins:
+        - https://kubetail.damians.cloud
+      session:
+        cookie:
+          secure: true
+          sameSite: "lax"
+      logging:
+        format: "json"
+        level: "info"
+
+    container:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+
+    deployment:
+      replicas: 1
+
+    ingress:
+      enabled: true
+      className: traefik
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+      rules:
+        - host: kubetail.damians.cloud
+          http:
+            paths:
+              - path: /
+                pathType: Prefix
+      tls:
+        - secretName: kubetail-tls
+          hosts:
+            - kubetail.damians.cloud
+
+  clusterAPI:
+    enabled: false
+  clusterAgent:
+    enabled: false
