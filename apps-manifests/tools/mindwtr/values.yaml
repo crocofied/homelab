@@ -83,10 +83,21 @@ ingress:
     hosts:
       - host: mindwtr.damians.cloud
         paths:
-          - path: /
+          - path: /v1
+            pathType: Prefix
             service:
               identifier: app
               port: http
+          - path: /health
+            pathType: Prefix
+            service:
+              identifier: app
+              port: http
+          - path: /
+            pathType: Prefix
+            service:
+              identifier: mindwtr-app
+              port: tcp-5173
     tls:
       - secretName: mindwtr-tls
         hosts:
