@@ -9,12 +9,19 @@ sections:
   - name: Management
     items:
       - title: Argo CD
+        description: GitOps deployment sync
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/argo-cd.png
         url: https://argocd.damians.cloud/
         target: newtab
       - title: Longhorn
+        description: Distributed block storage
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/rancher-longhorn.png
         url: https://longhorn.damians.cloud/
+        target: newtab
+      - title: Kubetail
+        description: Kubernetes log viewer
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/kubetail.png
+        url: https://kubetail.damians.cloud/
         target: newtab
     widgets:
       - type: hackernews-trending
@@ -52,6 +59,11 @@ sections:
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/seerr.png
         url: https://seerr.damians.cloud/
         target: newtab
+      - title: Zipline
+        description: File & image sharing
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/zipline.png
+        url: https://zipline.damians.cloud/
+        target: newtab
   - displayData:
       cols: 2
     name: Tools
@@ -80,6 +92,11 @@ sections:
         description: Quick notes & thoughts
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/memos.png
         url: https://memos.damians.cloud/
+        target: newtab
+      - title: Mindwtr
+        description: Task management
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/mindwtr.png
+        url: mindwtr.damians.cloud/
         target: newtab
       - title: N8N
         description: Workflow automation
@@ -110,6 +127,11 @@ sections:
         description: Recipes & meal planning
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/tandoor-recipes.png
         url: https://tandoor.damians.cloud/
+        target: newtab
+      - title: Rackula
+        description: Server rack documentation
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/rackula.png
+        url: https://rackula.damians.cloud/
         target: newtab
       - title: Rustmailer
         description: E-Mail Archive
