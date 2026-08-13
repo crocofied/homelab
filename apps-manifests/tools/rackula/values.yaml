@@ -7,7 +7,7 @@ controllers:
           repository: ghcr.io/rackulalives/rackula
           tag: persist
         env:
-          API_HOST: rackula-api
+          API_HOST: rackula-api.tools.svc.cluster.local
           API_PORT: "3001"
           RACKULA_LISTEN_PORT: "8080"
           API_WRITE_TOKEN:
@@ -17,7 +17,7 @@ controllers:
                 key: API_WRITE_TOKEN
           RACKULA_AUTH_MODE: none
           RACKULA_STORAGE_MODE: server
-          NGINX_RESOLVER: 127.0.0.11
+          NGINX_RESOLVER: 10.96.0.10
           RACKULA_TRUST_PROXY: "1"
           TZ: Europe/Berlin
         resources:
@@ -80,6 +80,11 @@ service:
     ports:
       http:
         port: 8080
+  api:
+    controller: api
+    ports:
+      http:
+        port: 3001
 
 ingress:
   app:
@@ -106,6 +111,6 @@ persistence:
     size: 5Gi
     storageClass: longhorn
     advancedMounts:
-      rackula-rackula-api:
+       api:
         app:
           - path: /data
