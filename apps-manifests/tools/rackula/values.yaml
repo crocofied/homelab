@@ -50,7 +50,7 @@ controllers:
             valueFrom:
               secretKeyRef:
                 name: rackula-secret
-                key: RACKULA_API_WRITE_TOKEN
+                key: API_WRITE_TOKEN
           RACKULA_TRUST_PROXY: "true"
           RACKULA_AUTH_MODE: none
           TZ: Europe/Berlin
