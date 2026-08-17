@@ -4,14 +4,14 @@ metadata:
   name: backup-daily
   namespace: longhorn-system
 spec:
-  cron: "0 2 * * *"
+  cron: "0 2 */2 * *"
   task: backup
   groups:
     - default
-  retain: 14
+  retain: 4
   concurrency: 1
   parameters:
-    full-backup-interval: "7"
+    full-backup-interval: "4"
 
 ---
 apiVersion: longhorn.io/v1beta2
