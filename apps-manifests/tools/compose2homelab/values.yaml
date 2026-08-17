@@ -49,6 +49,7 @@ ingress:
     enabled: true
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+      traefik.ingress.kubernetes.io/router.middlewares: tools-tinyauth@kubernetescrd
     hosts:
       - host: compose.damians.cloud
         paths:

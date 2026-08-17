@@ -158,6 +158,14 @@ $sealed = kubectl create secret generic tinyauth-oidc -n tools `
   Out-String
 
 [System.IO.File]::WriteAllText("$PWD\infrastructure\secrets\tinyauth-oidc.yaml", $sealed.TrimEnd() + "`n", [System.Text.Encoding]::ASCII)
+
+
+kubectl create secret generic tinyauth-oidc -n tools `
+  --from-literal=OPENWEBUI='ta-<secret>' `
+  --dry-run=client -o json |
+  kubeseal --format=yaml `
+    --controller-name=sealed-secrets --controller-namespace=sealed-secrets `
+    --merge-into infrastructure/secrets/tinyauth-oidc.yaml
 ```
 
 Für spätere Apps: neue Keys dazu (`--from-literal=OPENWEBUI=...`) und die Datei komplett neu sealen — SealedSecret ersetzt immer das ganze Secret, du brauchst also alle Klartext-Werte auf einmal. Deshalb die Client-Secrets beim Erzeugen irgendwo zwischenspeichern.
