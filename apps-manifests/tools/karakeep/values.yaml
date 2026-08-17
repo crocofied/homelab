@@ -11,6 +11,10 @@ controllers:
             cpu: 200m
             memory: 512Mi
         env:
+          OAUTH_WELLKNOWN_URL: 'https://auth.damians.cloud/.well-known/openid-configuration'
+          OAUTH_CLIENT_ID: '7aa19782-ee5c-41eb-9cab-b184b46182a7'
+          OAUTH_PROVIDER_NAME: 'damians.cloud'
+          OAUTH_ALLOW_DANGEROUS_EMAIL_ACCOUNT_LINKING: "true"
           MEILI_ADDR: http://karakeep-meilisearch:7700
           BROWSER_WEB_URL: http://karakeep-chrome:9222
           NEXTAUTH_URL: https://karakeep.damians.cloud
@@ -25,6 +29,11 @@ controllers:
               secretKeyRef:
                 name: karakeep-secret
                 key: MEILI_MASTER_KEY
+          OAUTH_CLIENT_SECRET:
+            valueFrom:
+              secretKeyRef:
+                name: tinyauth-oidc
+                key: KARAKEEP
         probes:
           liveness:
             enabled: true

@@ -12,11 +12,19 @@ tinyauth:
     userAttributes:
       - username: damian
         name: Damian
-        email: damian@damians.cloud
+        email: dam.bergemann@gmail.com
 
   oidc:
     privateKeyPath: /data/oidc/key.pem
     publicKeyPath: /data/oidc/key.pub
+    clients:
+      - id: karakeep
+        clientId: 7aa19782-ee5c-41eb-9cab-b184b46182a7
+        clientSecretSecretRef:
+          name: tinyauth-oidc
+          key: KARAKEEP
+        trustedRedirectUris: https://karakeep.damians.cloud/api/auth/callback/custom
+        name: Karakeep
 
   ui:
     title: damians.cloud
