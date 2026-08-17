@@ -1,0 +1,55 @@
+services:
+  backend:
+    image: ghcr.io/pouzor/homelable-backend:latest
+    restart: unless-stopped
+    environment:
+      SECRET_KEY: "change_me_in_production"
+      SQLITE_PATH: /app/data/homelab.db
+      # UPLOAD_DIR: /app/data/uploads
+      CORS_ORIGINS: '["http://localhost:3000"]'
+
+      # Auth
+      AUTH_MODE: local
+      AUTH_USERNAME: admin
+      AUTH_PASSWORD_HASH: '$$2b$$12$$RtMbyw17l4N5UGzeXMNAWuzCaVV.XFBY7ZetWheQhxcBDcxahapkG'
+
+      # Scanner
+      SCANNER_RANGES: '["192.168.1.0/24"]'
+      SCANNER_HTTP_RANGES: '[]'
+      SCANNER_HTTP_PROBE_ENABLED: "false"
+      SCANNER_HTTP_VERIFY_TLS: "false"
+
+      STATUS_CHECKER_INTERVAL: "60"
+
+      # Backend muss den Service-Key kennen, damit der MCP-Server sich authentifizieren kann
+      MCP_SERVICE_KEY: "svc_changeme"
+
+      # LIVEVIEW_KEY: ""
+      # HOMEPAGE_API_KEY: ""
+    volumes:
+      - backend_data:/app/data
+    cap_add:
+      - NET_RAW
+
+  frontend:
+    image: ghcr.io/pouzor/homelable-frontend:latest
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+  mcp:
+    image: ghcr.io/pouzor/homelable-mcp:latest
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      BACKEND_URL: "http://backend:8000"
+      MCP_API_KEY: "mcp_sk_changeme"
+      MCP_SERVICE_KEY: "svc_changeme"
+    depends_on:
+      - backend
+
+volumes:
+  backend_data:
