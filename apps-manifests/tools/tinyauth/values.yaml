@@ -32,6 +32,13 @@ tinyauth:
           key: ACTUALBUDGET
         trustedRedirectUris: https://actual.damians.cloud/openid/callback
         name: Actualbudget
+      - id: excalidash
+        clientId: e4e4296d-29a1-42b2-b27d-c9a69770e980
+        clientSecretSecretRef:
+          name: tinyauth-oidc
+          key: EXCALIDASH
+        trustedRedirectUris: https://excalidash.damians.cloud/api/auth/oidc/callback
+        name: Excalidash
 
   ui:
     title: damians.cloud

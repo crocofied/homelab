@@ -11,11 +11,12 @@ controllers:
           PORT: "8000"
           NODE_ENV: production
           FRONTEND_URL: https://excalidash.damians.cloud
-          AUTH_MODE:
-            valueFrom:
-              secretKeyRef:
-                name: excalidash-secret
-                key: AUTH_MODE
+          AUTH_MODE: oidc_enforced
+          OIDC_PROVIDER_NAME: 'damians.cloud'
+          OIDC_ISSUER_URL: 'https://auth.damians.cloud'
+          OIDC_CLIENT_ID: 'e4e4296d-29a1-42b2-b27d-c9a69770e980'
+          OIDC_REDIRECT_URI: 'https://excalidash.damians.cloud/api/auth/oidc/callback'
+          OIDC_SCOPES: openid profile email
           TRUST_PROXY: "true"
           JWT_SECRET:
             valueFrom:
@@ -27,6 +28,11 @@ controllers:
               secretKeyRef:
                 name: excalidash-secret
                 key: CSRF_SECRET
+          OIDC_CLIENT_SECRET:
+            valueFrom:
+              secretKeyRef:
+                name: tinyauth-oidc
+                key: EXCALIDASH
           TZ: Europe/Berlin
         resources:
           requests:
