@@ -30,7 +30,7 @@ tinyauth:
         clientSecretSecretRef:
           name: tinyauth-oidc
           key: ACTUALBUDGET
-        trustedRedirectUris: https://karakeep.damians.cloud/api/auth/callback/custom
+        trustedRedirectUris: https://actual.damians.cloud/openid/callback
         name: Actualbudget
 
   ui:
