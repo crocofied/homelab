@@ -25,6 +25,13 @@ tinyauth:
           key: KARAKEEP
         trustedRedirectUris: https://karakeep.damians.cloud/api/auth/callback/custom
         name: Karakeep
+      - id: actualbudget
+        clientId: b8144016-7c88-42dd-b306-15e14c74c032
+        clientSecretSecretRef:
+          name: tinyauth-oidc
+          key: ACTUALBUDGET
+        trustedRedirectUris: https://karakeep.damians.cloud/api/auth/callback/custom
+        name: Actualbudget
 
   ui:
     title: damians.cloud
