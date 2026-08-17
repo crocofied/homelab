@@ -39,6 +39,13 @@ tinyauth:
           key: EXCALIDASH
         trustedRedirectUris: https://excalidash.damians.cloud/api/auth/oidc/callback
         name: Excalidash
+      - id: memos
+        clientId: 3badf65a-67ef-4d05-9348-ef5f512f6032
+        clientSecretSecretRef:
+          name: tinyauth-oidc
+          key: MEMOS
+        trustedRedirectUris: https://memos.damians.cloud/auth/callback
+        name: Memos
 
   ui:
     title: damians.cloud
