@@ -1,0 +1,28 @@
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: backup-daily
+  namespace: longhorn-system
+spec:
+  cron: "0 2 * * *"
+  task: backup
+  groups:
+    - default
+  retain: 14
+  concurrency: 1
+  parameters:
+    full-backup-interval: "7"
+
+---
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: snapshot-cleanup
+  namespace: longhorn-system
+spec:
+  cron: "30 3 * * 0"
+  task: snapshot-cleanup
+  groups:
+    - default
+  retain: 0
+  concurrency: 1
