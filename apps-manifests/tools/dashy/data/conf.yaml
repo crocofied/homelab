@@ -23,6 +23,11 @@ sections:
         icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/kubetail.png
         url: https://kubetail.damians.cloud/
         target: newtab
+      - title: Tinyauth
+        description: Unified Authentication
+        icon: https://cdn.jsdelivr.net/gh/selfhst/icons@main/png/tinyauth.png
+        url: https://auth.damians.cloud/
+        target: newtab
     widgets:
       - type: hackernews-trending
         options:
