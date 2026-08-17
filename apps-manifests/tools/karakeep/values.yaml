@@ -15,6 +15,8 @@ controllers:
           OAUTH_CLIENT_ID: '7aa19782-ee5c-41eb-9cab-b184b46182a7'
           OAUTH_PROVIDER_NAME: 'damians.cloud'
           OAUTH_ALLOW_DANGEROUS_EMAIL_ACCOUNT_LINKING: "true"
+          DISABLE_PASSWORD_AUTH: "true"
+          DISABLE_SIGNUPS: "true"
           MEILI_ADDR: http://karakeep-meilisearch:7700
           BROWSER_WEB_URL: http://karakeep-chrome:9222
           NEXTAUTH_URL: https://karakeep.damians.cloud
