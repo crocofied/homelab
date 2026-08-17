@@ -1,0 +1,59 @@
+tinyauth:
+  appUrl: https://auth.damians.cloud
+  labelProvider: none
+  database:
+    driver: sqlite
+    path: /data/tinyauth.db
+  auth:
+    secureCookie: true
+    subdomainsEnabled: true       
+    trustedProxies: 10.244.0.0/16 
+    sessionExpiry: 604800
+    userAttributes:
+      - username: damian
+        name: Damian
+        email: damian@damians.cloud
+
+  oidc:
+    privateKeyPath: /data/oidc/key.pem
+    publicKeyPath: /data/oidc/key.pub
+
+  ui:
+    title: damians.cloud
+
+service:
+  port: 3000
+
+persistence:
+  enabled: true
+  storageClass: longhorn
+  accessMode: ReadWriteOnce
+  size: 1Gi
+  mountPath: /data
+
+ingress:
+  enabled: true
+  className: traefik
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+  hosts:
+    - host: auth.damians.cloud
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: tinyauth-tls
+      hosts:
+        - auth.damians.cloud
+
+env:
+  - name: TINYAUTH_AUTH_USERS
+    valueFrom:
+      secretKeyRef:
+        name: tinyauth-secret
+        key: USERS
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
