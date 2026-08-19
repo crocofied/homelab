@@ -20,7 +20,17 @@ controllers:
           MEILI_ADDR: http://karakeep-meilisearch:7700
           BROWSER_WEB_URL: http://karakeep-chrome:9222
           NEXTAUTH_URL: https://karakeep.damians.cloud
-          DATA_DIR: /data # DON'T CHANGE THIS
+          DATA_DIR: /data
+          SMTP_HOST: smtp.purelymail.com
+          SMTP_PORT: 465
+          SMTP_USER: notify@damians.cloud
+          SMTP_FROM: notify@damians.cloud
+          SMTP_SECURE: true
+          SMTP_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: email-secret
+                key: password
           NEXTAUTH_SECRET:
             valueFrom:
               secretKeyRef:
