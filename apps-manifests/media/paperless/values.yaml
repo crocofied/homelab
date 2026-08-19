@@ -55,6 +55,13 @@ controllers:
               secretKeyRef:
                 name: paperless-secret
                 key: PAPERLESS_SECRET_KEY
+          PAPERLESS_APPS: allauth.socialaccount.providers.openid_connect
+          PAPERLESS_SOCIAL_AUTO_SIGNUP: true
+          PAPERLESS_SOCIALACCOUNT_PROVIDERS:
+            valueFrom:
+              secretKeyRef:
+                name: paperless-oidc
+                key: SOCIALACCOUNT_PROVIDERS
         probes:
           liveness:
             enabled: true
