@@ -51,6 +51,7 @@ ingress:
     className: traefik
     annotations:
       cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+      traefik.ingress.kubernetes.io/router.middlewares: tools-tinyauth@kubernetescrd
     hosts:
       - host: spoolman.damians.cloud
         paths:
