@@ -79,7 +79,7 @@ Exports `/volume1/media` over **NFSv3**. Consumed by `pv-nas-media.yaml` with
 `mountOptions: [nfsvers=3, nolock]`. NFSv4 and locking must stay off — Talos has
 no rpc.statd, so `nolock` is mandatory or mounts hang.
 The export needs read/write for the cluster subnet with no root squash issues
-for the Jellyfin/Paperless UIDs.
+for the Jellyfin/Paperless NGX UIDs.
 
 **DNS — Technitium (split-horizon)**
 A wildcard record `*.damians.cloud → 192.168.3.141` on the internal resolver, so
@@ -324,7 +324,7 @@ changes get reverted.
 
 ## Part 3 — Secrets
 
-**Create these before the first sync**, or cert-manager and Paperless will crash-loop.
+**Create these before the first sync**, or cert-manager and Paperless NGX will crash-loop.
 See `docs/secrets.md`.
 
 ```powershell
@@ -333,7 +333,7 @@ kubectl create secret generic cloudflare-api-token `
   -n cert-manager `
   --from-literal=api-token="<TOKEN>"
 
-# Paperless
+# Paperless NGX
 kubectl create secret generic paperless-secret `
   -n media `
   --from-literal=PAPERLESS_SECRET_KEY="<RANDOM>"

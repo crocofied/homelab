@@ -46,13 +46,13 @@ tinyauth:
           key: MEMOS
         trustedRedirectUris: https://memos.damians.cloud/auth/callback
         name: Memos
-      - id: paperless
+      - id: paperlessngx
         clientId: 26d43854-44a6-4de7-887d-3e3e3d9d0104
         clientSecretSecretRef:
           name: tinyauth-oidc
           key: PAPERLESS
         trustedRedirectUris: https://paperless.damians.cloud/accounts/oidc/tinyauth/login/callback/
-        name: Paperless
+        name: Paperless NGX
 
   ui:
     title: damians.cloud
