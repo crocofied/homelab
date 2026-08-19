@@ -18,7 +18,7 @@ controllers:
           PAPERLESS_EMAIL_HOST: smtp.purelymail.com
           PAPERLESS_EMAIL_PORT: 465
           PAPERLESS_EMAIL_HOST_USER: notify@damians.cloud
-          PAPERLESS_EMAIL_USE_TLS: true
+          PAPERLESS_EMAIL_USE_TLS: false
           PAPERLESS_EMAIL_USE_SSL: true
           PAPERLESS_EMAIL_HOST_PASSWORD:
             valueFrom:
