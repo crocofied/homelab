@@ -22,7 +22,7 @@ controllers:
           TZ: Europe/Berlin
           CORE_TRUST_PROXY: true
           CORE_RETURN_HTTPS_URLS: true
-          OAUTH_BYPASS_LOCAL_LOGIN: false
+          OAUTH_BYPASS_LOCAL_LOGIN: true
         resources:
           requests:
             cpu: 100m
