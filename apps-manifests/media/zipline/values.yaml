@@ -21,6 +21,7 @@ controllers:
           DATASOURCE_LOCAL_DIRECTORY: /zipline/uploads
           TZ: Europe/Berlin
           CORE_TRUST_PROXY: true
+          CORE_RETURN_HTTPS_URLS: true
         resources:
           requests:
             cpu: 100m
