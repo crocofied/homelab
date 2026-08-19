@@ -20,6 +20,7 @@ controllers:
           DATASOURCE_TYPE: local
           DATASOURCE_LOCAL_DIRECTORY: /zipline/uploads
           TZ: Europe/Berlin
+          CORE_TRUST_PROXY: true
         resources:
           requests:
             cpu: 100m
