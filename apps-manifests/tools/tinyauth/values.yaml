@@ -53,6 +53,13 @@ tinyauth:
           key: PAPERLESS
         trustedRedirectUris: https://paperless.damians.cloud/accounts/oidc/tinyauth/login/callback/
         name: Paperless NGX
+      - id: zipline
+        clientId: b5a03f82-be1e-4b43-8a60-1061f22340f7
+        clientSecretSecretRef:
+          name: tinyauth-oidc
+          key: ZIPLINE
+        trustedRedirectUris: https://zipline.damians.cloud/api/auth/oauth/oidc
+        name: Zipline
 
   ui:
     title: damians.cloud
