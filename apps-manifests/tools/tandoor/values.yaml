@@ -45,6 +45,12 @@ controllers:
               secretKeyRef:
                 name: tandoor-secret
                 key: SECRET_KEY
+          SOCIAL_PROVIDERS: allauth.socialaccount.providers.openid_connect
+          SOCIALACCOUNT_PROVIDERS:
+            valueFrom:
+              secretKeyRef:
+                name: tandoor-oidc
+                key: SOCIALACCOUNT_PROVIDERS
         probes:
           liveness:
             enabled: true

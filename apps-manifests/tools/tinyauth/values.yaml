@@ -60,6 +60,13 @@ tinyauth:
           key: ZIPLINE
         trustedRedirectUris: https://zipline.damians.cloud/api/auth/oauth/oidc
         name: Zipline
+      - id: tandoor
+        clientId: a8c971ba-e97e-4f17-863c-82927b3d815e
+        clientSecretSecretRef:
+          name: tinyauth-oidc
+          key: TANDOOR
+        trustedRedirectUris: https://tandoor.damians.cloud/accounts/oidc/tinyauth/login/callback/
+        name: Tandoor
 
   ui:
     title: damians.cloud
