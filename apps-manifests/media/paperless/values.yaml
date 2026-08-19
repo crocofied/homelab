@@ -15,6 +15,16 @@ controllers:
           PAPERLESS_URL: https://paperless.damians.cloud
           PAPERLESS_REDIS: redis://paperless-broker:6379
           PAPERLESS_DBENGINE: postgresql
+          PAPERLESS_EMAIL_HOST: smtp.purelymail.com
+          PAPERLESS_EMAIL_PORT: 465
+          PAPERLESS_EMAIL_HOST_USER: notify@damians.cloud
+          PAPERLESS_EMAIL_USE_TLS: true
+          PAPERLESS_EMAIL_USE_SSL: true
+          PAPERLESS_EMAIL_HOST_PASSWORD:
+            valueFrom:
+              secretKeyRef:
+                name: email-secret
+                key: password
           PAPERLESS_DBHOST:
             valueFrom:
               secretKeyRef:
