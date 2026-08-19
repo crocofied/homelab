@@ -51,6 +51,8 @@ controllers:
               secretKeyRef:
                 name: tandoor-oidc
                 key: SOCIALACCOUNT_PROVIDERS
+          HIDE_LOGIN_FORM: 1
+          SOCIALACCOUNT_ONLY: 1
         probes:
           liveness:
             enabled: true
