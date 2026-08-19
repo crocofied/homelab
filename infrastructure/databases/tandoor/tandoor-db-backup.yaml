@@ -1,0 +1,12 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: tandoor-db-backup
+  namespace: tools
+spec:
+  schedule: "0 15 3 * * *"
+  backupOwnerReference: self
+  cluster:
+    name: tandoor-db
+  method: barmanObjectStore
+  immediate: true

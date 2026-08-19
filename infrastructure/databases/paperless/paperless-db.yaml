@@ -3,6 +3,8 @@ kind: Cluster
 metadata:
   name: paperless-db
   namespace: media
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false
 spec:
   instances: 1
   inheritedMetadata:
@@ -27,3 +29,22 @@ spec:
     requests:
       cpu: 200m
       memory: 512Mi
+  backup:
+    retentionPolicy: "14d"
+    barmanObjectStore:
+      destinationPath: s3://cnpg-backups/paperless-db
+      endpointURL: http://192.168.3.20:3900
+      s3Credentials:
+        accessKeyId:
+          name: cnpg-backup
+          key: AWS_ACCESS_KEY_ID
+        secretAccessKey:
+          name: cnpg-backup
+          key: AWS_SECRET_ACCESS_KEY
+        region:
+          name: cnpg-backup
+          key: AWS_REGION
+      wal:
+        compression: gzip
+      data:
+        compression: gzip
