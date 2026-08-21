@@ -14,8 +14,13 @@ spec:
         global:
           domain: argocd.damians.cloud
         configs:
+          cm:
+            exec.enabled: "true"
           params:
             server.insecure: true
+          rbac:
+            policy.csv: |
+              p, role:admin, exec, create, */*, allow
         server:
           ingress:
             enabled: true
