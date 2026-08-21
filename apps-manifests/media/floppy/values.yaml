@@ -1,0 +1,126 @@
+controllers:
+  floppy:
+    strategy: Recreate
+    containers:
+      app:
+        image:
+          repository: ghcr.io/dannyvfilms/floppy
+          tag: latest
+        env:
+          SECRET:
+            valueFrom:
+              secretKeyRef:
+                name: floppy-secret
+                key: SECRET
+          REDIS_URL: redis://floppy-redis:6379
+          REGISTRATION: "True"
+          DEMO_ACCOUNT_ENABLED: "False"
+          TZ: Europe/Berlin
+          TMDB_API:
+            valueFrom:
+              secretKeyRef:
+                name: floppy-secret
+                key: TMDB_API
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+        probes:
+          startup:
+            enabled: true
+            spec:
+              failureThreshold: 30
+              periodSeconds: 5
+          liveness:
+            enabled: true
+          readiness:
+            enabled: true
+  floppy-redis:
+    containers:
+      app:
+        image:
+          repository: redis
+          tag: 8-alpine
+        args:
+          - redis-server
+          - '--appendonly'
+          - 'yes'
+          - '--save'
+          - ''
+          - '--maxmemory'
+          - 256mb
+          - '--maxmemory-policy'
+          - volatile-lru
+        env:
+          TZ: Europe/Berlin
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            memory: 1Gi
+
+defaultPodOptions:
+  labels:
+    workload: selfhosted
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          workload: selfhosted
+  securityContext:
+    fsGroup: 1000
+
+service:
+  app:
+    controller: floppy
+    ports:
+      http:
+        port: 8000
+  redis:
+    controller: floppy-redis
+    ports:
+      redis:
+        port: 6379
+
+ingress:
+  app:
+    enabled: true
+    className: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-cloudflare
+    hosts:
+      - host: floppy.damians.cloud
+        paths:
+          - path: /
+            service:
+              identifier: app
+              port: http
+    tls:
+      - secretName: floppy-tls
+        hosts:
+          - floppy.damians.cloud
+
+persistence:
+  db:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 5Gi
+    storageClass: longhorn
+    advancedMounts:
+      floppy:
+        app:
+          - path: /floppy/db
+  data:
+    type: persistentVolumeClaim
+    accessMode: ReadWriteOnce
+    size: 5Gi
+    storageClass: longhorn
+    advancedMounts:
+      floppy-redis:
+        app:
+          - path: /data

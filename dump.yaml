@@ -1,55 +1,28 @@
 services:
-  backend:
-    image: ghcr.io/pouzor/homelable-backend:latest
+  floppy:
+    image: ghcr.io/dannyvfilms/floppy:latest
+    container_name: floppy
     restart: unless-stopped
     environment:
-      SECRET_KEY: "change_me_in_production"
-      SQLITE_PATH: /app/data/homelab.db
-      # UPLOAD_DIR: /app/data/uploads
-      CORS_ORIGINS: '["http://localhost:3000"]'
-
-      # Auth
-      AUTH_MODE: local
-      AUTH_USERNAME: admin
-      AUTH_PASSWORD_HASH: '$$2b$$12$$RtMbyw17l4N5UGzeXMNAWuzCaVV.XFBY7ZetWheQhxcBDcxahapkG'
-
-      # Scanner
-      SCANNER_RANGES: '["192.168.1.0/24"]'
-      SCANNER_HTTP_RANGES: '[]'
-      SCANNER_HTTP_PROBE_ENABLED: "false"
-      SCANNER_HTTP_VERIFY_TLS: "false"
-
-      STATUS_CHECKER_INTERVAL: "60"
-
-      # Backend muss den Service-Key kennen, damit der MCP-Server sich authentifizieren kann
-      MCP_SERVICE_KEY: "svc_changeme"
-
-      # LIVEVIEW_KEY: ""
-      # HOMEPAGE_API_KEY: ""
+      - SECRET=change_me_to_a_long_random_string
+      - REDIS_URL=redis://redis:6379
+      - REGISTRATION=True
+      - DEMO_ACCOUNT_ENABLED=False
+      - TZ=America/Chicago
+      - TMDB_API=your_tmdb_api_key
     volumes:
-      - backend_data:/app/data
-    cap_add:
-      - NET_RAW
-
-  frontend:
-    image: ghcr.io/pouzor/homelable-frontend:latest
-    restart: unless-stopped
+      - floppy_db:/floppy/db
     ports:
-      - "3000:80"
-    depends_on:
-      - backend
+      - "8000:8000"
 
-  mcp:
-    image: ghcr.io/pouzor/homelable-mcp:latest
+  redis:
+    image: redis:8-alpine
+    container_name: floppy-redis
     restart: unless-stopped
-    ports:
-      - "8001:8001"
-    environment:
-      BACKEND_URL: "http://backend:8000"
-      MCP_API_KEY: "mcp_sk_changeme"
-      MCP_SERVICE_KEY: "svc_changeme"
-    depends_on:
-      - backend
+    command: ["redis-server", "--appendonly", "yes", "--save", "", "--maxmemory", "256mb", "--maxmemory-policy", "volatile-lru"]
+    volumes:
+      - redis_data:/data
 
 volumes:
-  backend_data:
+  floppy_db:
+  redis_data:
