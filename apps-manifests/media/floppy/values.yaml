@@ -16,6 +16,10 @@ controllers:
           REGISTRATION: "True"
           DEMO_ACCOUNT_ENABLED: "False"
           TZ: Europe/Berlin
+          URLS: https://floppy.damians.cloud
+          ALLOWED_HOSTS: floppy.damians.cloud
+          USE_X_FORWARDED: "True"
+          USE_X_FORWARDED_PROTO: "True"
           TMDB_API:
             valueFrom:
               secretKeyRef:
