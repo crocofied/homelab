@@ -46,7 +46,7 @@ controllers:
       app:
         image:
           repository: zimengxiong/excalidash-frontend
-          tag: 0.5.1
+          tag: 0.6.0
         env:
           TZ: Europe/Berlin
           BACKEND_URL: excalidash-backend:8000
