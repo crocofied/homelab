@@ -5,7 +5,7 @@ controllers:
       app:
         image:
           repository: docker.io/pglombardo/pwpush
-          tag: 2.11.6
+          tag: 2.12.0
         env:
           PWPUSH_MASTER_KEY:
             valueFrom:
